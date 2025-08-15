@@ -40,7 +40,7 @@ const Step1_UserType = () => {
         </div>
 
         <div
-          onClick={() => handleSelect("existing")}
+           onClick={() => navigate("/existing-user")}
           className={`cursor-pointer border-2 rounded-lg p-6 text-center transition ${
             selected === "existing"
               ? "border-gray-600 bg-gray-100"
