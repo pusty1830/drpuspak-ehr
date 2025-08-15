@@ -13,8 +13,8 @@ const RegistrationRoutes = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-4">
       <Stepper />
       <Routes>
-        <Route path="/" element={<Step0_Language />} />
-        <Route path="usertype" element={<Step1_UserType />} />
+        {/* <Route path="/" element={<Step0_Language />} /> */}
+        <Route path="/" element={<Step1_UserType />} />
         <Route path="form" element={<Step2_Form />} />
         <Route path="doctors" element={<Step3_Doctor />} />
         <Route path="agreement" element={<Step4_Agreement />} />
