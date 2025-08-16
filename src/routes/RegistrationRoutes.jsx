@@ -15,11 +15,11 @@ const RegistrationRoutes = () => {
       <Routes>
         {/* <Route path="/" element={<Step0_Language />} /> */}
         <Route path="/" element={<Step1_UserType />} />
-        <Route path="/form" element={<Step2_Form />} />
-        <Route path="/doctors" element={<Step3_Doctor />} />
-        <Route path="/agreement" element={<Step4_Agreement />} />
-        <Route path="/payment" element={<Step5_Payment />} />
-        <Route path="/success" element={<Step6_Confirmation />} />
+        <Route path="form" element={<Step2_Form />} />
+        <Route path="doctors" element={<Step3_Doctor />} />
+        <Route path="agreement" element={<Step4_Agreement />} />
+        <Route path="payment" element={<Step5_Payment />} />
+        <Route path="success" element={<Step6_Confirmation />} />
       </Routes>
     </div>
   );

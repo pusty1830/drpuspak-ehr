@@ -78,13 +78,13 @@ const Navbar = () => {
                   </li>
 
                   <li className="nav-item">
-                    <Link className="nav-link" to="/blog">
-                      Doctor Login
+                    <Link className="nav-link" to="/doctor/dashboard/">
+                      Doctor
                     </Link>
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link" to="/contact">
-                      Admin Login
+                      Admin
                     </Link>
                   </li>
                 </ul>

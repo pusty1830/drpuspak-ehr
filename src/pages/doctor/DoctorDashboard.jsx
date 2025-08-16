@@ -1,11 +1,17 @@
 // src/pages/doctor/DoctorDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { doctorApi } from "../../services/doctorApi";
 import TodayAppointments from "./TodayAppointments";
 import RecentPatients from "./RecentPatients";
 import EPrescription from "./EPrescription";
-import { FiLogOut, FiCalendar, FiUsers, FiUser, FiClock, FiChevronRight } from "react-icons/fi";
+import {
+  FiLogOut,
+  FiCalendar,
+  FiUsers,
+  FiUser,
+  FiClock,
+  FiChevronRight,
+} from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const DoctorDashboard = () => {
@@ -19,33 +25,15 @@ const DoctorDashboard = () => {
   const [stats, setStats] = useState({
     todayCount: 0,
     recentCount: 0,
-    completed: 0
+    completed: 0,
   });
 
-  useEffect(() => {
-    const d = localStorage.getItem("doctor");
-    if (!d) {
-      navigate("/doctor/login");
-      return;
-    }
-    setDoctor(JSON.parse(d));
-    fetchData();
-  }, [navigate]);
+  useEffect(() => {}, [navigate]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [a, r] = await Promise.all([
-        doctorApi.getTodayAppointments(),
-        doctorApi.getRecentPatients()
-      ]);
-      setAppointments(a);
-      setRecentPatients(r);
-      setStats({
-        todayCount: a.length,
-        recentCount: r.length,
-        completed: a.filter(app => app.status === 'completed').length
-      });
+      console.log("jihugy");
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -61,14 +49,7 @@ const DoctorDashboard = () => {
 
   const savePrescription = async (presc) => {
     try {
-      const res = await doctorApi.savePrescription(presc);
-      if (res.ok) {
-        // Update local state if needed
-        await fetchData();
-        closePrescription();
-      } else {
-        throw new Error("Failed to save");
-      }
+      console.log("jihugyftd");
     } catch (error) {
       console.error("Error saving prescription:", error);
     }
@@ -84,23 +65,21 @@ const DoctorDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Welcome, Dr. {doctor.name}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+              Welcome, Dr. {doctor.name}
+            </h1>
             <p className="text-sm text-gray-600 mt-1">
-              Department: <span className="font-medium">{doctor.dept || "General Medicine"}</span>
+              Department:{" "}
+              <span className="font-medium">
+                {doctor.dept || "General Medicine"}
+              </span>
             </p>
           </div>
-          <button 
-            onClick={logout} 
-            className="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg transition-colors duration-200"
-          >
-            <FiLogOut className="text-lg" />
-            <span>Logout</span>
-          </button>
         </header>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -110,7 +89,7 @@ const DoctorDashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Today's Appointments</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {isLoading ? '--' : stats.todayCount}
+                  {isLoading ? "--" : stats.todayCount}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -119,7 +98,7 @@ const DoctorDashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -129,7 +108,7 @@ const DoctorDashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Recent Patients</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {isLoading ? '--' : stats.recentCount}
+                  {isLoading ? "--" : stats.recentCount}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-green-100 text-green-600">
@@ -138,7 +117,7 @@ const DoctorDashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -148,7 +127,7 @@ const DoctorDashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Completed Today</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {isLoading ? '--' : stats.completed}
+                  {isLoading ? "--" : stats.completed}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-purple-100 text-purple-600">
@@ -163,8 +142,8 @@ const DoctorDashboard = () => {
           <div className="flex gap-1">
             <button
               className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors duration-200 flex-1 justify-center ${
-                view === "today" 
-                  ? "bg-blue-600 text-white shadow-md" 
+                view === "today"
+                  ? "bg-blue-600 text-white shadow-md"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setView("today")}
@@ -174,8 +153,8 @@ const DoctorDashboard = () => {
             </button>
             <button
               className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors duration-200 flex-1 justify-center ${
-                view === "recent" 
-                  ? "bg-blue-600 text-white shadow-md" 
+                view === "recent"
+                  ? "bg-blue-600 text-white shadow-md"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setView("recent")}
@@ -197,17 +176,17 @@ const DoctorDashboard = () => {
               transition={{ duration: 0.2 }}
             >
               {view === "today" && (
-                <TodayAppointments 
-                  appointments={appointments} 
-                  onViewPatient={openPrescription} 
+                <TodayAppointments
+                  appointments={appointments}
+                  onViewPatient={openPrescription}
                   isLoading={isLoading}
                   refreshData={fetchData}
                 />
               )}
               {view === "recent" && (
-                <RecentPatients 
-                  patients={recentPatients} 
-                  onOpenPatient={openPrescription} 
+                <RecentPatients
+                  patients={recentPatients}
+                  onOpenPatient={openPrescription}
                   isLoading={isLoading}
                 />
               )}
