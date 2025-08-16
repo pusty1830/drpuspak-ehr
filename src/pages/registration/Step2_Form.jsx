@@ -26,7 +26,29 @@ const Step2_Form = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "dob") {
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      // Adjust if birthday hasn't occurred yet this year
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        dob: value,
+        age: age >= 0 ? age.toString() : "",
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const startVoiceInput = (field) => {
@@ -76,8 +98,9 @@ const Step2_Form = () => {
         onChange={handleChange}
         className="mt-1 p-2 border rounded shadow-sm"
         required={required}
+        readOnly={name === "age"} // Age is read-only
       />
-      {voice && (
+      {voice && name !== "age" && (
         <button
           type="button"
           onClick={() => startVoiceInput(name)}
@@ -155,8 +178,35 @@ const Step2_Form = () => {
           />
         </div>
 
-        {renderField("Age", "age", "number")}
-        {renderField("Blood Group", "bloodGroup")}
+        {/* Auto-filled Age */}
+        {renderField("Age", "age", "number", false)}
+
+        {/* Blood Group Dropdown */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-700">
+            Blood Group 
+          </label>
+          <div className="relative">
+            <select
+              name="bloodGroup"
+              value={form.bloodGroup}
+              onChange={handleChange}
+              className="mt-1 p-2 border rounded shadow-sm w-full"
+              
+            >
+              <option value="">Select Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+        </div>
+
         {renderField("Address", "address")}
 
         {/* Optional Fields */}
