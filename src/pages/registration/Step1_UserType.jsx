@@ -1,20 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useRegistration } from "../../context/RegistrationContext";
 
 const Step1_UserType = () => {
+ const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(null);
+  const { updateFormData } = useRegistration();
 
   const handleSelect = (type) => {
     setSelected(type);
+
+    // ✅ Save into step1 only
+    updateFormData("step1", { userType: type });
+    console.log({ userType: type })
   };
 
   const handleNext = () => {
     if (selected === "new") {
-      navigate("/register/form");
+      navigate("/register/form"); // go to next step
     } else if (selected === "existing") {
-      alert("Redirecting to existing customer flow (not implemented yet)");
-      // You can later navigate to: navigate("/login") or similar
+      navigate("/existing-user");
     } else {
       alert("Please select an option.");
     }
@@ -40,7 +45,7 @@ const Step1_UserType = () => {
         </div>
 
         <div
-           onClick={() => navigate("/existing-user")}
+          onClick={() => handleSelect("existing")}
           className={`cursor-pointer border-2 rounded-lg p-6 text-center transition ${
             selected === "existing"
               ? "border-gray-600 bg-gray-100"
@@ -55,7 +60,7 @@ const Step1_UserType = () => {
       {/* Navigation Buttons */}
       <div className="flex justify-between">
         <button
-          onClick={() => navigate("/register/language")}
+          onClick={() => navigate("/")}
           className="bg-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-400 font-semibold"
         >
           ← Back

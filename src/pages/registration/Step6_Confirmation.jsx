@@ -1,14 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaCalendarAlt, FaUserMd, FaUser, FaFileAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@react-hook/window-size";
+import { useRegistration } from "../../context/RegistrationContext"; 
 
 const Step6_Success = () => {
   const navigate = useNavigate();
   const [width, height] = useWindowSize();
   const [showConfetti, setShowConfetti] = React.useState(true);
+
+  const { formData } = useRegistration()
+
+  console.log("form data", formData)
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 5000);
@@ -36,10 +41,40 @@ const Step6_Success = () => {
       }
     }
   };
+  useEffect(() => {
+  if (formData?.step5?.bookingId) {
+    // Combine data into one object
+    const finalBookingData = {
+      bookingId: formData.step5.bookingId,
+      patientName: formData.step2?.name,
+      age: formData.step2?.age,
+      gender: formData.step2?.gender,
+      dob: formData.step2?.dob,
+      address: formData.step2?.address,
+      parentName: formData.step2?.parentName,
+      title: formData.step2?.title,
+      doctor: formData.step3?.docter, // careful: it's "docter" in your state
+      amount: formData.step5?.amount,
+      status: formData.step5?.status,
+      date: formData.step5?.date,
+    };
+
+    // Save in localStorage
+    localStorage.setItem("appointmentData", JSON.stringify(finalBookingData));
+  }
+}, [formData]);
+
 
   return (
     <div className="min-h-[90vh] bg-gradient-to-br from-blue-50 to-green-50 flex justify-center items-center px-4 py-8">
-      {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={300} />}
+      {showConfetti && (
+        <Confetti
+          width={width}
+          height={height}
+          recycle={false}
+          numberOfPieces={300}
+        />
+      )}
       
       <motion.div 
         initial="hidden"
@@ -47,7 +82,7 @@ const Step6_Success = () => {
         variants={containerVariants}
         className="bg-white w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden"
       >
-        {/* Header with decorative elements */}
+        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-green-500 p-6 text-white relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-white bg-opacity-10 rounded-full"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white bg-opacity-10 rounded-full"></div>
@@ -61,7 +96,7 @@ const Step6_Success = () => {
             </motion.div>
             <h2 className="text-2xl font-bold mb-2">Appointment Confirmed!</h2>
             <p className="text-blue-100 max-w-md">
-              Your booking with Dr. Pushpak has been successfully completed. We've sent the details to your email.
+              Your booking with {"Doctor"} has been successfully completed. We've sent the details to your email.
             </p>
           </motion.div>
         </div>
@@ -69,6 +104,7 @@ const Step6_Success = () => {
         {/* Summary Card */}
         <motion.div variants={itemVariants} className="p-6 md:p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
             {/* Patient Info */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
@@ -83,11 +119,11 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Name:</span>{" "}
-                  <span className="font-medium text-gray-800">Jagat Jyoti</span>
+                  <span className="font-medium text-gray-800">{formData?.name || "N/A"}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Booking ID:</span>{" "}
-                  <span className="font-medium text-gray-800">#DOC2025080401</span>
+                  <span className="font-medium text-gray-800">{ "#DOC2025080401"}</span>
                 </p>
               </div>
             </motion.div>
@@ -106,11 +142,11 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Doctor:</span>{" "}
-                  <span className="font-medium text-gray-800">Dr. Pushpak</span>
+                  <span className="font-medium text-gray-800">{ "N/A"}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Department:</span>{" "}
-                  <span className="font-medium text-gray-800">General Medicine</span>
+                  <span className="font-medium text-gray-800">{"N/A"}</span>
                 </p>
               </div>
             </motion.div>
@@ -129,11 +165,11 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Date:</span>{" "}
-                  <span className="font-medium text-gray-800">05 Aug 2025</span>
+                  <span className="font-medium text-gray-800">{"05 Aug 2025"}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Time Slot:</span>{" "}
-                  <span className="font-medium text-gray-800">10:00 AM – 2:00 PM</span>
+                  <span className="font-medium text-gray-800">{ "10:00 AM – 2:00 PM"}</span>
                 </p>
               </div>
             </motion.div>
@@ -152,7 +188,7 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Status:</span>{" "}
-                  <span className="font-semibold text-green-600">Confirmed</span>
+                  <span className="font-semibold text-green-600">Conform</span>
                 </p>
                 <p className="text-sm text-gray-600">
                   You'll receive a reminder 24 hours before your appointment.
@@ -161,7 +197,7 @@ const Step6_Success = () => {
             </motion.div>
           </div>
 
-          {/* Additional Information */}
+          {/* Extra Info */}
           <motion.div 
             variants={itemVariants}
             className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center"
@@ -171,7 +207,7 @@ const Step6_Success = () => {
             </p>
           </motion.div>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <motion.div 
             variants={itemVariants}
             className="flex flex-col sm:flex-row justify-center gap-4 pt-4"
