@@ -119,11 +119,11 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Name:</span>{" "}
-                  <span className="font-medium text-gray-800">{formData?.name || "N/A"}</span>
+                  <span className="font-medium text-gray-800">{formData.step2?.parentName || "N/A"}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Booking ID:</span>{" "}
-                  <span className="font-medium text-gray-800">{ "#DOC2025080401"}</span>
+                  <span className="font-medium text-gray-800">{ formData.step5.bookingId}</span>
                 </p>
               </div>
             </motion.div>

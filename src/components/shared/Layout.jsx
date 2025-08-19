@@ -13,15 +13,15 @@ function Layout() {
       }}
     >
       {/* Header/Navbar */}
-      <Navbar />
+      {/* <Navbar /> */}
 
       {/* Main Content */}
-      <main style={{ flexGrow: 1, marginTop: "0px" }}>
+      <main className='min-h-[calc(100vh-110px)] '>
         <Outlet />
       </main>
 
       {/* Footer */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

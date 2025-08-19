@@ -5,7 +5,7 @@ import { useRegistration } from "../../context/RegistrationContext";
 const Step4_Agreement = () => {
   const navigate = useNavigate();
   const {  updateFormData } =  useRegistration();// ✅ use context
-  const [agreed, setAgreed] = useState(null);
+  const [agreed, setAgreed] = useState(false);
   //console.log("form data at agrement",formData)
 
   const handleNext = () => {
