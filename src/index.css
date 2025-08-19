@@ -1,1 +1,27 @@
 @import "tailwindcss";
+/* Mobile Drawer Slide Effect */
+.mobile-drawer {
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.footer-section {
+  background-image: url('./assets/ft.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-overlay {
+  background: rgba(0, 0, 0, 0.9); /* blue overlay */
+  z-index: 0;
+}
+
+.footer-section .container {
+  z-index: 1;
+  position: relative;
+}

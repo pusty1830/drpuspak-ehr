@@ -1,27 +1,55 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRegistration } from "../../context/RegistrationContext"; 
 
 const Step5_Payment = () => {
   const navigate = useNavigate();
+  const { formData, updateFormData } = useRegistration();
+
+  const generateBookingId = () => {
+    const rand = Math.floor(1000 + Math.random() * 9000); // 4-digit random
+    return `DOC${Date.now()}${rand}`;
+  };
 
   const handlePayment = () => {
-    alert("✅ Payment Successful! Your appointment is confirmed.");
+    const bookingId = generateBookingId();
+
+    // create payload
+    const payload = {
+      bookingId,
+      doctor: formData?.step3?.doctor || {},
+      patientName: formData?.step2?.name || "N/A",
+      amount: 100,
+      status: "Success", // you can set "Pending" if you want before confirmation
+      date: new Date().toISOString(),
+    };
+
+    // Save to context
+    updateFormData("step5", payload);
+
+    alert(`✅ Payment Successful! Booking ID: ${bookingId}`);
     navigate("/register/success");
-  };
+  }
 
   return (
     <div className="min-h-[80vh] bg-gray-50 flex justify-center items-center p-4">
       <div className="bg-white rounded-xl shadow-lg max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+        
         {/* LEFT: Appointment Info */}
         <div className="p-6 md:p-8 bg-gradient-to-br from-blue-50 via-white to-white">
-          <h2 className="text-xl font-bold text-blue-800 mb-4 border-b pb-2">Appointment Summary</h2>
+          <h2 className="text-xl font-bold text-blue-800 mb-4 border-b pb-2">
+            Appointment Summary
+          </h2>
 
           <div className="space-y-3 text-sm text-gray-700">
-            <p><strong>Doctor:</strong> Dr. Pushpak</p>
-            <p><strong>Department:</strong> General Medicine</p>
-            <p><strong>Consultation Timing:</strong> 10:00 AM – 2:00 PM</p>
-            <p><strong>Booking ID:</strong> <span className="text-blue-600 font-semibold">#DOC2025080401</span></p>
-            <p><strong>Patient Name:</strong> (Auto-filled or Saved Name)</p>
+            <p><strong>Doctor:</strong> {formData?.name || "Dr. Pushpak"}</p>
+            <p><strong>Department:</strong> { "General Medicine"}</p>
+            <p><strong>Consultation Timing:</strong> { "10:00 AM – 2:00 PM"}</p>
+            <p>
+              <strong>Booking ID:</strong> 
+              <span className="text-blue-600 font-semibold"> #DOC2025080401 </span>
+            </p>
+            <p><strong>Patient Name:</strong> {formData?.step2.name || "N/A"}</p>
           </div>
 
           <div className="mt-6 border-t pt-4 text-xs text-gray-500">

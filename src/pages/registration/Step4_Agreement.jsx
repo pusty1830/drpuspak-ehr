@@ -1,15 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRegistration } from "../../context/RegistrationContext"; 
 
 const Step4_Agreement = () => {
   const navigate = useNavigate();
-  const [agreed, setAgreed] = useState(false);
+  const {  updateFormData } =  useRegistration();// ✅ use context
+  const [agreed, setAgreed] = useState(null);
+  //console.log("form data at agrement",formData)
 
   const handleNext = () => {
     if (!agreed) {
       alert("Please agree to the terms to continue.");
       return;
     }
+
+    // ✅ save agreement in global context
+    updateFormData("step4",{ agreed: true });
+
     navigate("/register/payment");
   };
 
@@ -20,11 +27,12 @@ const Step4_Agreement = () => {
       </h2>
 
       <div className="text-gray-700 space-y-4 mb-6 text-sm">
-        <p>
-          By proceeding, you agree to the following:
-        </p>
+        <p>By proceeding, you agree to the following:</p>
         <ul className="list-disc list-inside space-y-2">
-          <li>Your information will be stored securely and used only for medical consultation.</li>
+          <li>
+            Your information will be stored securely and used only for medical
+            consultation.
+          </li>
           <li>The consultation fee of ₹100 is non-refundable.</li>
           <li>Dr. Pushpak will contact you based on the schedule you select.</li>
           <li>In case of emergency, please reach out to your nearest hospital.</li>

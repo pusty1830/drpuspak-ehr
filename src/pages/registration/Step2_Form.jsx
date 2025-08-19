@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaMicrophone } from "react-icons/fa6";
+import { useRegistration } from "../../context/RegistrationContext"; // ✅ use context
 
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -9,24 +10,37 @@ const Step2_Form = () => {
   const navigate = useNavigate();
   const recognition = useRef(null);
 
-  const [form, setForm] = useState({
-    title: "",
-    name: "",
-    parentName: "",
-    gender: "",
-    dob: "",
-    age: "",
-    bloodGroup: "",
-    address: "",
-    phone: "",
-    email: "",
-  });
+  const { formData, updateFormData } = useRegistration(); // ✅ from context
+
+  // initialize local state from context
+  const [form, setForm] = useState(formData.step2 || {});
 
   const [recordingField, setRecordingField] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "dob") {
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        dob: value,
+        age: age >= 0 ? age.toString() : "",
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const startVoiceInput = (field) => {
@@ -54,8 +68,13 @@ const Step2_Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ save Step2 data in global context
+    updateFormData("step2", form);
+
     console.log("Form submitted:", form);
-    navigate("/register/doctors");
+
+    navigate("/register/doctors"); // go to next step
   };
 
   const renderField = (
@@ -72,12 +91,13 @@ const Step2_Form = () => {
       <input
         type={type}
         name={name}
-        value={form[name]}
+        value={form[name] || ""}
         onChange={handleChange}
         className="mt-1 p-2 border rounded shadow-sm"
         required={required}
+        readOnly={name === "age"} // Age is read-only
       />
-      {voice && (
+      {voice && name !== "age" && (
         <button
           type="button"
           onClick={() => startVoiceInput(name)}
@@ -102,7 +122,7 @@ const Step2_Form = () => {
           <button
             key={option}
             type="button"
-            onClick={() => setForm({ ...form, [field]: option })}
+            onClick={() => setForm((prev) => ({ ...prev, [field]: option }))}
             className={`py-2 px-4 rounded-full font-medium border transition-all ${
               form[field] === option
                 ? "bg-blue-600 text-white border-blue-600"
@@ -148,15 +168,39 @@ const Step2_Form = () => {
           <input
             type="date"
             name="dob"
-            value={form.dob}
+            value={form.dob || ""}
             onChange={handleChange}
             className="mt-1 p-2 border rounded shadow-sm"
             required
           />
         </div>
 
-        {renderField("Age", "age", "number")}
-        {renderField("Blood Group", "bloodGroup")}
+        {/* Auto-filled Age */}
+        {renderField("Age", "age", "number", false)}
+
+        {/* Blood Group Dropdown */}
+        <div className="flex flex-col">
+          <label className="font-semibold text-gray-700">Blood Group</label>
+          <div className="relative">
+            <select
+              name="bloodGroup"
+              value={form.bloodGroup || ""}
+              onChange={handleChange}
+              className="mt-1 p-2 border rounded shadow-sm w-full"
+            >
+              <option value="">Select Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+        </div>
+
         {renderField("Address", "address")}
 
         {/* Optional Fields */}
