@@ -26,8 +26,8 @@ const Step1_UserType = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl bg-white p-8 rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+    <div className="w-full max-w-5xl p-4 md:p-8 rounded-xl shadow-sm">
+      <h2 className="text-xl md:text-2xl font-bold text-blue-700 md:mb-6 mb-2 text-center">
         Are you a new or existing patient?
       </h2>
 
@@ -41,7 +41,7 @@ const Step1_UserType = () => {
           }`}
         >
           <h3 className="text-xl font-semibold text-blue-700 mb-2">🆕 New Patient</h3>
-          <p className="text-gray-600">Register as a new patient and book your consultation.</p>
+          <p className="text-gray-600 ">Register as a new patient and book your consultation.</p>
         </div>
 
         <div

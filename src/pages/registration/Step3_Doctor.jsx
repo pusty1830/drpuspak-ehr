@@ -9,7 +9,7 @@ const Step3_Doctor = () => {
 
   const doctorInfo = {
     name: "Dr. Pushpak",
-    department: "General Medicine",
+    department: "Orthopedic",
     timing: "10:00 AM - 2:00 PM",
     image: "https://picsum.photos/200/300",
   };

@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { signIn } from "../../services/services";
 import { setCurrentAccessToken } from "../../services/axiosClient";
+import { FaHospital, FaEnvelope, FaLock } from "react-icons/fa";
 
 // ✅ Validation schema
 const LoginSchema = Yup.object().shape({
@@ -16,7 +17,7 @@ const LoginSchema = Yup.object().shape({
     .required("Password is required"),
 });
 
-const Login = () => {
+const DoctorLogin = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -31,7 +32,6 @@ const Login = () => {
 
       if (res?.statusText === "OK") {
         setCurrentAccessToken(res?.data?.data?.accessToken);
-        console.log(res);
         if (res?.data?.role === "Doctor") {
           window.location.href = "/doctor/dashboard";
         } else if (res?.data?.role === "Admin") {
@@ -51,21 +51,15 @@ const Login = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center bg-light min-vh-100 py-5">
-      <div
-        className="card shadow-lg p-4 my-5"
-        style={{ maxWidth: "420px", width: "100%" }}
-      >
+    <div className="flex justify-center items-center bg-gray-50 min-h-screen px-4">
+      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
         {/* Header */}
-        <div className="text-center mb-4">
-          <div
-            className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2"
-            style={{ width: "70px", height: "70px" }}
-          >
-            <i className="bi bi-hospital fs-2"></i>
+        <div className="text-center mb-6">
+          <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-3">
+            <FaHospital className="text-3xl" />
           </div>
-          <h2 className="fw-bold">Doctor Portal</h2>
-          <p className="text-muted">Access your medical dashboard</p>
+          <h2 className="text-2xl font-bold text-gray-800">Doctor Portal</h2>
+          <p className="text-gray-500 text-sm">Access your medical dashboard</p>
         </div>
 
         {/* Formik Form */}
@@ -75,62 +69,60 @@ const Login = () => {
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
-            <Form>
+            <Form className="space-y-5">
               {/* Email */}
-              <div className="mb-3">
-                <label className="form-label">Email</label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-envelope"></i>
-                  </span>
+              <div>
+                <label className="block text-gray-700 text-sm font-medium mb-1">
+                  Email
+                </label>
+                <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+                  <FaEnvelope className="text-gray-400 mr-2" />
                   <Field
                     type="email"
                     name="email"
-                    className="form-control"
+                    className="flex-1 outline-none bg-transparent text-sm"
                     placeholder="Enter your email"
                   />
                 </div>
                 <ErrorMessage
                   name="email"
                   component="div"
-                  className="text-danger small mt-1"
+                  className="text-red-500 text-xs mt-1"
                 />
               </div>
 
               {/* Password */}
-              <div className="mb-3">
-                <label className="form-label">Password</label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <i className="bi bi-lock"></i>
-                  </span>
+              <div>
+                <label className="block text-gray-700 text-sm font-medium mb-1">
+                  Password
+                </label>
+                <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+                  <FaLock className="text-gray-400 mr-2" />
                   <Field
                     type="password"
                     name="password"
-                    className="form-control"
+                    className="flex-1 outline-none bg-transparent text-sm"
                     placeholder="Enter your password"
                   />
                 </div>
                 <ErrorMessage
                   name="password"
                   component="div"
-                  className="text-danger small mt-1"
+                  className="text-red-500 text-xs mt-1"
                 />
               </div>
 
               {/* Remember & Forgot */}
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="form-check">
-                  <input
+              <div className="flex justify-between items-center text-sm">
+                <label className="flex items-center gap-2">
+                  <Field
                     type="checkbox"
-                    id="remember"
-                    className="form-check-input"
+                    name="remember"
+                    className="h-4 w-4 text-blue-600 rounded"
                   />
-                  <label htmlFor="remember" className="form-check-label">
-                    Remember me
-                  </label>
-                </div>
-                <a href="#" className="text-decoration-none">
+                  Remember me
+                </label>
+                <a href="#" className="text-blue-600 hover:underline">
                   Forgot password?
                 </a>
               </div>
@@ -139,11 +131,11 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn btn-primary w-100"
+                className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition font-semibold flex justify-center items-center"
               >
                 {isSubmitting ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4 mr-2"></span>
                     Signing in...
                   </>
                 ) : (
@@ -155,22 +147,22 @@ const Login = () => {
         </Formik>
 
         {/* Footer */}
-        <div className="text-center mt-3">
-          <small className="text-muted">
+        <div className="text-center mt-6 text-sm">
+          <p className="text-gray-500">
             New to the platform?{" "}
             <a
               href="https://wa.me/919876543210"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-decoration-none fw-semibold"
+              className="text-blue-600 font-semibold hover:underline"
             >
               Contact admin
             </a>
-          </small>
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default DoctorLogin;

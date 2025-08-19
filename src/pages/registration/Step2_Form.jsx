@@ -84,8 +84,8 @@ const Step2_Form = () => {
     voice = true,
     required = true
   ) => (
-    <div className="flex flex-col relative">
-      <label className="font-semibold text-gray-700">
+    <div className="flex flex-col relative ">
+      <label className="font-semibold text-gray-700 ">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
@@ -93,7 +93,7 @@ const Step2_Form = () => {
         name={name}
         value={form[name] || ""}
         onChange={handleChange}
-        className="mt-1 p-2 border rounded shadow-sm"
+        className="mt-1 p-2 border rounded shadow-sm  outline-none border-gray-400"
         required={required}
         readOnly={name === "age"} // Age is read-only
       />
@@ -137,7 +137,7 @@ const Step2_Form = () => {
   );
 
   return (
-    <div className="bg-white w-full max-w-4xl p-6 md:p-10 rounded-xl shadow-md">
+    <div className="bg-white w-full max-w-full p-6 md:p-10 rounded-xl shadow-md ">
       <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">
         Patient Registration
       </h2>
@@ -170,7 +170,7 @@ const Step2_Form = () => {
             name="dob"
             value={form.dob || ""}
             onChange={handleChange}
-            className="mt-1 p-2 border rounded shadow-sm"
+            className="mt-1 p-2 border rounded shadow-sm border-gray-400 outline-none"
             required
           />
         </div>
@@ -186,7 +186,7 @@ const Step2_Form = () => {
               name="bloodGroup"
               value={form.bloodGroup || ""}
               onChange={handleChange}
-              className="mt-1 p-2 border rounded shadow-sm w-full"
+              className="mt-1 p-2 border border-gray-400 outline-none rounded shadow-sm w-full"
             >
               <option value="">Select Blood Group</option>
               <option value="A+">A+</option>

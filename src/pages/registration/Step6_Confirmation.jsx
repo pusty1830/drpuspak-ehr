@@ -80,7 +80,7 @@ const Step6_Success = () => {
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="bg-white w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden"
+        className="bg-white w-full max-w-7xl rounded-xl shadow-2xl overflow-hidden "
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-green-500 p-6 text-white relative overflow-hidden">
@@ -92,12 +92,12 @@ const Step6_Success = () => {
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 0.5, repeat: 1, repeatDelay: 1 }}
             >
-              <FaCheckCircle size={70} className="text-white mb-4 drop-shadow-lg" />
+              <FaCheckCircle size={50} className="text-white mb-2 drop-shadow-lg" />
             </motion.div>
-            <h2 className="text-2xl font-bold mb-2">Appointment Confirmed!</h2>
-            <p className="text-blue-100 max-w-md">
+            <h2 className="text-2xl font-bold mb-1">Appointment Confirmed!</h2>
+            {/* <p className="text-blue-100 max-w-md">
               Your booking with {"Doctor"} has been successfully completed. We've sent the details to your email.
-            </p>
+            </p> */}
           </motion.div>
         </div>
 
@@ -142,7 +142,7 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Doctor:</span>{" "}
-                  <span className="font-medium text-gray-800">{ "N/A"}</span>
+                  <span className="font-medium text-gray-800">{formData.step3?.docter?.name}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Department:</span>{" "}
@@ -165,7 +165,7 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Date:</span>{" "}
-                  <span className="font-medium text-gray-800">{"05 Aug 2025"}</span>
+                  <span className="font-medium text-gray-800">{formData.step5?.date}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Time Slot:</span>{" "}

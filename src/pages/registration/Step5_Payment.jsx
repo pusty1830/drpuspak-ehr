@@ -32,8 +32,8 @@ const Step5_Payment = () => {
   }
 
   return (
-    <div className="min-h-[80vh] bg-gray-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-xl shadow-lg max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+    <div className="min-h-[80vh] bg-gray-50 flex justify-center items-center ">
+      <div className="bg-white rounded-xl shadow-lg max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden">
         
         {/* LEFT: Appointment Info */}
         <div className="p-6 md:p-8 bg-gradient-to-br from-blue-50 via-white to-white">

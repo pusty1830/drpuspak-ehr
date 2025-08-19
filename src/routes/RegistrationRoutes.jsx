@@ -10,7 +10,7 @@ import Stepper from "../components/userRegistion/Stepper";
 
 const RegistrationRoutes = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-4">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start py-4 md:pt-16">
       <Stepper />
       <Routes>
         {/* <Route path="/" element={<Step0_Language />} /> */}
