@@ -1,11 +1,17 @@
 // src/pages/doctor/DoctorLogin.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { signIn } from "../../services/services";
-import { setCurrentAccessToken } from "../../services/axiosClient";
-import { FaHospital, FaEnvelope, FaLock } from "react-icons/fa";
+import { signIn } from "../services/services";
+import { setCurrentAccessToken } from "../services/axiosClient";
+import {
+  FaHospital,
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 
 // ✅ Validation schema
 const LoginSchema = Yup.object().shape({
@@ -17,8 +23,9 @@ const LoginSchema = Yup.object().shape({
     .required("Password is required"),
 });
 
-const DoctorLogin = () => {
+const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false); // 👁️ State for password visibility
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const payload = {
@@ -28,13 +35,12 @@ const DoctorLogin = () => {
 
     try {
       const res = await signIn(payload);
-      console.log("Login response:", res);
 
       if (res?.statusText === "OK") {
         setCurrentAccessToken(res?.data?.data?.accessToken);
-        if (res?.data?.role === "Doctor") {
+        if (res?.data?.data?.role === "Doctor") {
           window.location.href = "/doctor/dashboard";
-        } else if (res?.data?.role === "Admin") {
+        } else if (res?.data?.data?.role === "Admin") {
           window.location.href = "/reminder";
         } else {
           window.location.href = "/reminder";
@@ -58,7 +64,7 @@ const DoctorLogin = () => {
           <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-3">
             <FaHospital className="text-3xl" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800">Doctor Portal</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Login </h2>
           <p className="text-gray-500 text-sm">Access your medical dashboard</p>
         </div>
 
@@ -96,14 +102,22 @@ const DoctorLogin = () => {
                 <label className="block text-gray-700 text-sm font-medium mb-1">
                   Password
                 </label>
-                <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+                <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400 relative">
                   <FaLock className="text-gray-400 mr-2" />
                   <Field
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     className="flex-1 outline-none bg-transparent text-sm"
                     placeholder="Enter your password"
                   />
+                  {/* 👁️ Toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
                 </div>
                 <ErrorMessage
                   name="password"
@@ -165,4 +179,4 @@ const DoctorLogin = () => {
   );
 };
 
-export default DoctorLogin;
+export default Login;

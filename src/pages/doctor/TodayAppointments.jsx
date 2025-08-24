@@ -1,6 +1,13 @@
-import React from "react";
-import { FiUser, FiClock, FiAlertCircle, FiCheckCircle, FiChevronRight } from "react-icons/fi";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import {
+  FiUser,
+  FiClock,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiChevronRight,
+} from "react-icons/fi";
+import { motion } from "framer-motion"; // ✅ You forgot to import motion
+import { getAllPatientDetails, getAllUser } from "../../services/services";
 
 const statusColors = {
   pending: "bg-amber-100 text-amber-800",
@@ -16,14 +23,93 @@ const statusIcons = {
   missed: <FiAlertCircle className="mr-1" />,
 };
 
-const TodayAppointments = ({ appointments = [], onViewPatient, isLoading, refreshData }) => {
-  const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    return `${hour > 12 ? hour - 12 : hour}:${minutes} ${hour >= 12 ? 'PM' : 'AM'}`;
+const TodayAppointments = ({ appointments = [], onViewPatient, isLoading }) => {
+  const [enrichedAppointments, setEnrichedAppointments] = useState([]);
+
+  useEffect(() => {
+    if (!appointments.length) return;
+
+    const fetchData = async () => {
+      try {
+        // Extract unique userIds
+        const userIds = [...new Set(appointments.map((a) => a.userId))];
+
+        // Fetch users in bulk
+        const userPayload = {
+          data: { filter: "", role: "User" },
+          page: 0,
+          pageSize: 100,
+          order: [["createdAt", "ASC"]],
+        };
+        const userRes = await getAllUser(userPayload);
+        const allUsers = userRes?.data?.data?.rows || [];
+        const filteredUsers = allUsers.filter((u) => userIds.includes(u.id));
+
+        // Fetch patients for each user
+        const patientResList = await Promise.all(
+          filteredUsers.map(async (u) => {
+            const patientPayload = {
+              data: { filter: "", userId: u.id },
+              page: 0,
+              pageSize: 10,
+              order: [["createdAt", "ASC"]],
+            };
+            const res = await getAllPatientDetails(patientPayload);
+            return { userId: u.id, ...(res?.data?.data?.rows?.[0] || {}) };
+          })
+        );
+
+        // Merge appointments with user + patient info
+        const merged = appointments.map((app) => {
+          const user = filteredUsers.find((u) => u.id === app.userId);
+          const patient = patientResList.find((p) => p.userId === app.userId);
+
+          return {
+            ...app,
+            patientName: user?.userName || "Unknown",
+            patientId: user?.id,
+            mobile: user?.phoneNumber,
+            age: patient?.age,
+            gender: patient?.gender,
+            bloodGroup: patient?.bloodGroup,
+            address: patient?.address,
+            // ✅ handle bookingDate safely
+            bookingDate: app.bookingDate
+              ? new Date(app.bookingDate).toISOString().split("T")[0]
+              : null,
+          };
+        });
+        setEnrichedAppointments(merged);
+      } catch (err) {
+        console.error("Error fetching users/patients:", err);
+      }
+    };
+
+    fetchData();
+  }, [appointments]);
+
+  console.log(enrichedAppointments);
+  // ✅ Format time properly from ISO date/time
+  const formatTime = (isoString) => {
+    if (!isoString) return "--";
+    const date = new Date(isoString);
+
+    // convert to IST manually
+    const utcHours = date.getUTCHours();
+    const utcMinutes = date.getUTCMinutes();
+
+    // IST offset (+5:30)
+    const istDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
+
+    let hours = istDate.getHours();
+    const minutes = istDate.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+
+    return `${hours}:${minutes} ${ampm}`;
   };
 
-  // Custom loading skeleton component
+  // Loading skeleton
   const LoadingSkeleton = () => (
     <div className="animate-pulse space-y-4 p-5">
       {[...Array(3)].map((_, i) => (
@@ -47,14 +133,15 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading, refres
           <FiClock className="mr-2 text-blue-600" />
           Today's Appointments
           <span className="ml-auto text-sm font-normal bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-            {isLoading ? '--' : appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
+            {isLoading ? "--" : enrichedAppointments.length}{" "}
+            {enrichedAppointments.length === 1 ? "appointment" : "appointments"}
           </span>
         </h3>
       </div>
 
       {isLoading ? (
         <LoadingSkeleton />
-      ) : appointments.length === 0 ? (
+      ) : enrichedAppointments.length === 0 ? (
         <div className="p-8 text-center">
           <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
             <FiClock className="text-gray-400 text-2xl" />
@@ -64,7 +151,7 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading, refres
         </div>
       ) : (
         <ul className="divide-y divide-gray-100">
-          {appointments.map((appointment, index) => (
+          {enrichedAppointments.map((appointment, index) => (
             <motion.li
               key={appointment.id}
               initial={{ opacity: 0, y: 10 }}
@@ -83,27 +170,34 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading, refres
                     <h4 className="text-sm font-medium text-gray-900 truncate">
                       {appointment.patientName}
                     </h4>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ml-2 ${statusColors[appointment.status]} flex items-center`}>
-                      {statusIcons[appointment.status]}
-                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ml-2 ${
+                        statusColors[appointment.status]
+                      } flex items-center`}
+                    >
+                      {/* {statusIcons[appointment.status]}
+                      {appointment.status.charAt(0).toUpperCase() +
+                        appointment.status.slice(1)} */}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 truncate mt-1">
                     {appointment.condition}
                   </p>
                   <div className="flex items-center mt-1 text-xs text-gray-400">
-                    <span>ID: {appointment.patientId}</span>
+                    <span>Date: {appointment.bookingDate}</span>
                     <span className="mx-2">•</span>
-                    <span>{formatTime(appointment.time)}</span>
+                    <span>{formatTime(appointment.bookingDate)}</span>
                   </div>
                 </div>
                 <div className="ml-4 flex-shrink-0">
                   <button
-                    onClick={() => onViewPatient({ 
-                      patientId: appointment.patientId, 
-                      name: appointment.patientName,
-                      condition: appointment.condition
-                    })}
+                    onClick={() =>
+                      onViewPatient({
+                        patientId: appointment.patientId,
+                        name: appointment.patientName,
+                        condition: appointment.condition,
+                      })
+                    }
                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                   >
                     View

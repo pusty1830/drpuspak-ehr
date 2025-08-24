@@ -17,7 +17,7 @@ const Step1_UserType = () => {
 
   const handleNext = () => {
     if (selected === "new") {
-      navigate("/register/form"); // go to next step
+      navigate("form"); // go to next step
     } else if (selected === "existing") {
       navigate("/existing-user");
     } else {

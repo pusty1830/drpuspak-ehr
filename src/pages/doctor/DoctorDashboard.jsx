@@ -13,14 +13,21 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  getAllBooking,
+  getAllDoctor,
+  getAllPrescription,
+  getDoctorDetailswithuserId,
+} from "../../services/services";
+import { getUserId } from "../../services/axiosClient";
 
 const DoctorDashboard = () => {
   const navigate = useNavigate();
-  const [view, setView] = useState("today"); // 'today' | 'recent'
+  const [view, setView] = useState("today");
   const [appointments, setAppointments] = useState([]);
   const [recentPatients, setRecentPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [doctor, setDoctor] = useState({ name: "Doctor" });
+  const [doctor, setDoctor] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     todayCount: 0,
@@ -28,7 +35,104 @@ const DoctorDashboard = () => {
     completed: 0,
   });
 
-  useEffect(() => {}, [navigate]);
+  // get Doctor Details
+  useEffect(() => {
+    const Payload = {
+      data: { filter: "", id: getUserId() },
+      page: 0,
+      pageSize: 50,
+      order: [["createdAt", "ASC"]],
+    };
+
+    getAllDoctor(Payload)
+      .then((res) => {
+        console.log(res);
+        const firstDoctor = res?.data?.data?.rows?.[0];
+
+        if (firstDoctor) {
+          // Set doctor name from first API
+          const doctorName = firstDoctor.userName || "";
+
+          // Then fetch details from second API with userId
+          getDoctorDetailswithuserId(firstDoctor.id).then((detailRes) => {
+            const details = detailRes?.data?.data || {};
+            console.log(details);
+
+            setDoctor({
+              name: doctorName,
+              dept: details.dept,
+            });
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching doctor info:", error);
+      });
+  }, []);
+
+  // get Booking Details
+  useEffect(() => {
+    const today = new Date();
+    const todayUTC = new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    );
+
+    const Payload = {
+      data: {
+        filter: "",
+        doctorId: getUserId(),
+        bookingDate: todayUTC,
+      },
+      page: 0,
+      pageSize: 50,
+      order: [["createdAt", "ASC"]],
+    };
+
+    getAllBooking(Payload)
+      .then((res) => {
+        setAppointments(res?.data?.data?.rows || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching bookings:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const payload = {
+      data: {
+        filter: "",
+        doctorId: getUserId(),
+      },
+      page: 0,
+      pageSize: 50,
+      order: [["createdAt", "ASC"]],
+    };
+
+    getAllPrescription(payload)
+      .then((res) => {
+        const prescriptions = res?.data?.data?.rows || [];
+
+        // ✅ Today's prescriptions
+        const todaysPrescriptions = prescriptions.filter((p) =>
+          isToday(p.createdAt)
+        );
+
+        // ✅ Patients who already have today's prescription
+        const todaysUserIds = todaysPrescriptions.map((p) => p.userId);
+
+        // ✅ Filter out from appointments
+        const todaysAppointmentsWithoutPrescription = appointments.filter(
+          (appt) => !todaysUserIds.includes(appt.patientId)
+        );
+
+        setAppointments(todaysAppointmentsWithoutPrescription);
+        setRecentPatients(todaysPrescriptions);
+      })
+      .catch((err) => console.error("Error fetching prescriptions:", err));
+  }, [appointments]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -55,18 +159,13 @@ const DoctorDashboard = () => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("doctor");
-    navigate("/");
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6  md:pt-10 ">
       <div className="max-w-7xl mx-auto pt-10">
         <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-              Welcome, Dr. {doctor.name}
+              Welcome, {doctor.name}
             </h1>
             <p className="text-sm text-gray-600 mt-1">
               Department:{" "}
@@ -89,7 +188,7 @@ const DoctorDashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Today's Appointments</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {isLoading ? "--" : stats.todayCount}
+                  {appointments.length}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">

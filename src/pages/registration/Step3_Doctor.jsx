@@ -1,33 +1,74 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useRegistration } from "../../context/RegistrationContext"; // ✅ import context
-
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useRegistration } from "../../context/RegistrationContext";
+import {
+  getAllDoctor,
+  getDoctorDetailswithuserId,
+} from "../../services/services";
 
 const Step3_Doctor = () => {
   const navigate = useNavigate();
-  const { updateFormData } = useRegistration(); // ✅ get updater
+  const { updateFormData } = useRegistration();
+  const location = useLocation();
+  const userId = location.state?.userId;
+  const bookingDate = location.state?.bookingDate; // ✅ same name
 
-  const doctorInfo = {
-    name: "Dr. Pushpak",
-    department: "Orthopedic",
-    timing: "10:00 AM - 2:00 PM",
-    image: "https://picsum.photos/200/300",
-  };
+  const [doctorInfo, setDoctorInfo] = useState({
+    name: "",
+    department: "",
+    timing: "",
+    image: "",
+  });
 
-    const { formData, selectedDoctor, bookingId, appointmentDate, isPaid } = useRegistration()
-    console.log(formData)
-  
+  useEffect(() => {
+    const Payload = {
+      data: { filter: "", role: "Doctor" },
+      page: 0,
+      pageSize: 50,
+      order: [["createdAt", "ASC"]],
+    };
+
+    getAllDoctor(Payload)
+      .then((res) => {
+        const firstDoctor = res?.data?.data?.rows?.[0];
+
+        if (firstDoctor) {
+          // Set doctor name from first API
+          const doctorName = firstDoctor.userName || "";
+
+          // Then fetch details from second API with userId
+          getDoctorDetailswithuserId(firstDoctor.id).then((detailRes) => {
+            const details = detailRes?.data?.data || {};
+            console.log(details);
+
+            setDoctorInfo({
+              id: firstDoctor.id,
+              name: doctorName,
+              department: details.dept || "",
+              timing: details.timing || "",
+              image: details.doctImg || "../../assets/puspakbgremove.png", // fallback image
+            });
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching doctor info:", error);
+      });
+  }, []);
 
   const handleNext = () => {
-    // ✅ Save doctor info to global context
-        updateFormData("step3", { docter: doctorInfo });
-        console.log({ docter: doctorInfo })
+    // Save doctorInfo to global context
+    if (userId) {
+      updateFormData("step3", {
+        doctor: doctorInfo,
+        userId: userId,
+        bookingDate: bookingDate,
+      }); // fixed typo to "doctor"
+    } else {
+      updateFormData("step3", { doctor: doctorInfo }); // fixed typo to "doctor"
+    }
 
-    // updateFormData((prev) => ({
-    //   ...prev,
-    //   doctor: doctorInfo,
-    // }));
-    navigate("/register/agreement");
+    navigate("/agreement");
   };
 
   return (
@@ -44,8 +85,12 @@ const Step3_Doctor = () => {
         />
 
         <div className="text-center md:text-left">
-          <h3 className="text-xl font-semibold text-gray-800">{doctorInfo.name}</h3>
-          <p className="text-gray-600 mt-1">Department: {doctorInfo.department}</p>
+          <h3 className="text-xl font-semibold text-gray-800">
+            {doctorInfo.name}
+          </h3>
+          <p className="text-gray-600 mt-1">
+            Department: {doctorInfo.department}
+          </p>
           <p className="text-gray-600">Timing: {doctorInfo.timing}</p>
         </div>
       </div>

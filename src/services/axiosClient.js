@@ -44,7 +44,7 @@ export function getUserId() {
   let token = localStorage.getItem("accessToken");
   if (token) {
     let decoded = jwtDecode(token);
-    // console.log("user Details bro!=",decoded)
+    // console.log("user Details bro!=", decoded);
     return decoded.id || "";
   } else {
     return "";

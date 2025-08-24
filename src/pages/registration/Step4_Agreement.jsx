@@ -1,10 +1,12 @@
-import React, { useState, useContext } from "react";
+import React, { useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { useRegistration } from "../../context/RegistrationContext"; 
+import { useRegistration } from "../../context/RegistrationContext";
+import { createpatientDetails, createUser } from "../../services/services";
+import { toast } from "react-toastify";
 
 const Step4_Agreement = () => {
   const navigate = useNavigate();
-  const {  updateFormData } =  useRegistration();// ✅ use context
+  const { formData, updateFormData } = useRegistration(); // ✅ use context
   const [agreed, setAgreed] = useState(false);
   //console.log("form data at agrement",formData)
 
@@ -14,10 +16,53 @@ const Step4_Agreement = () => {
       return;
     }
 
-    // ✅ save agreement in global context
-    updateFormData("step4",{ agreed: true });
+    // Check userType
+    if (formData?.step1?.userType === "new") {
+      const payLoad = {
+        userName: formData?.step2?.title + " " + formData?.step2?.name,
+        email: formData?.step2?.email,
+        phoneNumber: formData?.step2?.phone,
+        password: "123456",
+      };
 
-    navigate("/register/payment");
+      createUser(payLoad)
+        .then((res) => {
+          const userId = res?.data?.data?.id;
+          const BookpayLoad = {
+            userId: userId,
+            guirdianName: formData?.step2?.parentName,
+            dob: formData?.step2?.dob,
+            age: formData?.step2?.age,
+            bloodgroup: formData?.step2?.bloodGroup,
+            adress: formData?.step2?.address,
+            gender: formData?.step2?.gender,
+          };
+          updateFormData("step4", { agreed: true, userId: userId });
+
+          createpatientDetails(BookpayLoad)
+            .then((res) => {
+              toast.success(
+                res?.data?.msg || "Patient details saved successfully"
+              );
+              navigate("/payment");
+            })
+            .catch((err) => {
+              const errorMsg =
+                err?.response?.data?.msg || "Failed to save patient details";
+              toast.error(errorMsg);
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          const errorMsg = err?.response?.data?.msg || "User creation failed";
+          toast.error(errorMsg);
+          window.location.href = "/";
+          console.log(err);
+        });
+    } else {
+      // Existing user → skip APIs, go to payment directly
+      navigate("/payment");
+    }
   };
 
   return (
@@ -34,8 +79,12 @@ const Step4_Agreement = () => {
             consultation.
           </li>
           <li>The consultation fee of ₹100 is non-refundable.</li>
-          <li>Dr. Pushpak will contact you based on the schedule you select.</li>
-          <li>In case of emergency, please reach out to your nearest hospital.</li>
+          <li>
+            Dr. Pushpak will contact you based on the schedule you select.
+          </li>
+          <li>
+            In case of emergency, please reach out to your nearest hospital.
+          </li>
         </ul>
       </div>
 

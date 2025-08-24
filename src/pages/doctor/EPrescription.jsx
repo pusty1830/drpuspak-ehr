@@ -1,6 +1,10 @@
 // src/pages/doctor/EPrescription.jsx
 import React, { useEffect, useState } from "react";
 import { FaPlus, FaTrash, FaSave } from "react-icons/fa";
+import { getUserId } from "../../services/axiosClient";
+import jsPDF from "jspdf"; // ✅ install with: npm install jspdf
+import { createPrescription } from "../../services/services";
+import { toast } from "react-toastify";
 
 const defaultMedicine = () => ({
   id: Date.now().toString(),
@@ -14,7 +18,7 @@ const EPrescription = ({ patient, onClose, onSave }) => {
   const [data, setData] = useState({
     patientId: patient.patientId || "",
     name: patient.name || "",
-    condition: patient.condition || "",
+    condition: patient.condition ?? "",
     medicines: [defaultMedicine()],
     notes: "",
     nextVisit: "",
@@ -52,14 +56,69 @@ const EPrescription = ({ patient, onClose, onSave }) => {
     }));
   };
 
+  const generatePDF = (payLoad) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("E-Prescription", 14, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Patient: ${payLoad.name} (ID: ${payLoad.patientId})`, 14, 30);
+    doc.text(`Condition: ${payLoad.condition}`, 14, 40);
+    doc.text(`Doctor ID: ${payLoad.doctorId}`, 14, 50);
+    doc.text(`Next Visit: ${payLoad.nextVisit || "N/A"}`, 14, 60);
+
+    let y = 75;
+    doc.setFontSize(13);
+    doc.text("Medicines:", 14, y);
+    y += 10;
+
+    payLoad.drug.forEach((med, i) => {
+      doc.setFontSize(11);
+      doc.text(
+        `${i + 1}. ${med.name} | ${med.dose} | ${med.freq} | ${med.days} days`,
+        20,
+        y
+      );
+      y += 8;
+    });
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text("Notes:", 14, y);
+    y += 8;
+    doc.setFontSize(11);
+    doc.text(payLoad.notes || "No notes", 20, y);
+
+    // ✅ Download PDF
+    doc.save(`prescription_${payLoad.patientId}.pdf`);
+  };
+
   const handleSave = async () => {
-    // Basic validation
-    if (!data.name || !data.patientId) {
-      alert("Patient name and ID required.");
-      return;
-    }
-    const res = await onSave(data);
-    // onSave handles closing on success
+    // Build payload with drug JSON
+    const payLoad = {
+      userId: data.patientId,
+      condition: data.condition,
+      doctorId: getUserId(),
+      drug: data.medicines.map((m) => ({
+        name: m.name,
+        dose: m.dose,
+        freq: m.freq,
+        days: m.days,
+      })),
+      messages: data.notes,
+    };
+
+    createPrescription(payLoad).then((res) => {
+      // Generate PDF
+      generatePDF(payLoad);
+
+      // Call parent save handler
+      onSave(payLoad);
+      toast("Prescription Saved Successfully");
+
+      onClose();
+    });
   };
 
   return (
@@ -87,22 +146,7 @@ const EPrescription = ({ patient, onClose, onSave }) => {
           </div>
         </div>
 
-        {/* Patient History (optional summary) */}
-        {history && (
-          <div className="mt-4 p-3 bg-gray-50 rounded text-sm text-gray-700">
-            <p className="font-medium">Recent visits:</p>
-            {history.visits.map((v, i) => (
-              <div key={i} className="mt-2">
-                <div className="text-xs text-gray-500">{v.date}</div>
-                <div className="text-sm">
-                  {v.reason} — <span className="text-gray-600">{v.notes}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Condition & Notes */}
+        {/* Condition & Next Visit */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
             <label className="text-sm font-medium">Condition</label>

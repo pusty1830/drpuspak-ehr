@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi"; // modern icons
+import { isLoggedIn, logout } from "../../services/axiosClient";
 
 const Navbar = () => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -81,12 +82,25 @@ const Navbar = () => {
               </ul>
 
               <div>
-                <Link
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
-                  to="/login"
-                >
-                  Login
-                </Link>
+                {isLoggedIn() ? (
+                  <>
+                    <Link
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                      onClick={() => logout()}
+                    >
+                      Logout
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                      to="/login"
+                    >
+                      Login
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 

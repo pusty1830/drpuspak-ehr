@@ -4,35 +4,36 @@ import ExistingUser from "./pages/ExistingUser";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import Layout from "./components/shared/Layout";
 import PrivateRoute from "./components/PrivateRoute";
-import Login from "./pages/doctor/DoctorLogin";
+import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import { RegistrationProvider } from "./context/RegistrationContext"; // ⬅️ import
+import Footer from "./components/shared/Footer";
+import Navbar from "./components/shared/Header";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* Wrap only registration-related routes with Provider */}
+      <Navbar />
+      <main className="min-h-[calc(100vh-110px)]  ">
+        <Routes>
           <Route
-             path="/register/*"
+            path="/*"
             element={
               <RegistrationProvider>
                 <RegistrationRoutes />
               </RegistrationProvider>
             }
           />
-
-          <Route path="*" element={<div>404 Not Found</div>} />
           <Route path="/existing-user" element={<ExistingUser />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} /> {/* default */}
+          <Route path="/login/:role" element={<Login />} /> {/* dynamic */}
           <Route
             path="/doctor/dashboard/"
             element={<PrivateRoute component={DoctorDashboard} />}
           />
-        </Route>
-      </Routes>
-
+        </Routes>
+      </main>
+      <Footer />
       <ToastContainer />
     </BrowserRouter>
   );
