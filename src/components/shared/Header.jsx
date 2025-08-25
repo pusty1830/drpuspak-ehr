@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import { FiMenu, FiX } from "react-icons/fi"; // modern icons
+import { isLoggedIn, logout } from "../../services/axiosClient";
 
 const Navbar = () => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -10,14 +11,13 @@ const Navbar = () => {
   const toggleDrawer = () => setShowDrawer(!showDrawer);
 
   useEffect(() => {
-    // Adjust page content padding based on header height
     const header = document.querySelector(".fixed-header");
     if (header) {
       setHeaderHeight(header.offsetHeight);
     }
   }, []);
 
-  // Close drawer automatically when route changes
+  // Close sidebar on route change
   useEffect(() => {
     setShowDrawer(false);
   }, [location]);
@@ -25,30 +25,24 @@ const Navbar = () => {
   return (
     <>
       {/* Fixed Header */}
-      <div className="w-100 position-fixed top-0 start-0 z-3">
+      <div className="w-full fixed top-0 left-0 z-50">
         {/* Top Blue & Black Header */}
-        <div className="top-header bg-dark d-flex text-white small d-none d-sm-flex">
-          <div
-            className="bg-primary py-2 px-4 d-flex align-items-center diagonal-left"
-            style={{ flex: "0 0 60%" }}
-          >
-            <i className="bi bi-telephone-fill me-2"></i>
-            Help Line:{" "}
-            <b className="ms-1">
+        <div className="hidden sm:flex text-white text-sm">
+          <div className="bg-blue-600 py-2 px-4 flex items-center w-[60%]">
+            <i className="bi bi-telephone-fill mr-2"></i>
+            Help Line:
+            <b className="ml-1">
               <i>+91 7873366631</i>
             </b>
             <span className="mx-3">|</span>
-            <i className="bi bi-clock-fill me-2"></i>
+            <i className="bi bi-clock-fill mr-2"></i>
             Open Hours: Mon - Fri 7.30 am - 8.00 pm
           </div>
-          <div
-            className="bg-dark py-1 px-5 d-flex align-items-center diagonal-center"
-            style={{ flex: "0 0 40%" }}
-          >
-            <i className="bi bi-envelope-fill me-2"></i>
+          <div className="bg-black py-1 px-5 flex items-center w-[40%]">
+            <i className="bi bi-envelope-fill mr-2"></i>
             <a
               href="mailto:info@example.com"
-              className="text-white text-decoration-none"
+              className="text-white no-underline"
             >
               drpuspak@gmail.com
             </a>
@@ -56,55 +50,72 @@ const Navbar = () => {
         </div>
 
         {/* White Pill Navbar */}
-        <div className="fixed-header ms-sm-0 ms-md-0 ms-lg-5 me-sm-0 me-md-0 me-lg-5 bg-white shadow rounded-2">
-          <div>
-            <div className="navbar-pill px-4 py-3 d-flex justify-content-between align-items-center rounded-pill">
-              {/* Logo */}
-              <Link
-                className="navbar-brand fw-bold d-flex align-items-center text-decoration-none"
-                to="/"
-              >
-                <i className="bi bi-heart-pulse-fill text-primary fs-4 me-2"></i>
-                <span className="fs-5">Dr Puspak Samal</span>
-              </Link>
+        <div className="fixed-header mx-0 lg:mx-5 bg-white shadow rounded-md">
+          <div className="px-4 py-3 flex justify-between items-center rounded-full">
+            {/* Logo */}
+            <Link
+              className="flex items-center font-bold no-underline text-gray-800"
+              to="/"
+            >
+              <i className="bi bi-heart-pulse-fill text-blue-600 text-xl mr-2"></i>
+              <span className="text-lg">Dr Puspak Samal</span>
+            </Link>
 
-              {/* Nav Links (Desktop) */}
-              <div className="d-none d-lg-flex align-items-center flex-grow-1 justify-content-between ms-1">
-                <ul className="nav">
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/">
-                      Home
-                    </Link>
-                  </li>
-
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/doctor/dashboard/">
-                      Doctor
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/contact">
-                      Admin
-                    </Link>
-                  </li>
-                </ul>
-
-                <div className="d-flex align-items-center">
-                  <Link
-                    className="btn btn-success rounded-pill px-4 text-uppercase fw-semibold"
-                    to="/appointment"
-                  >
-                    Login
+            {/* Nav Links (Desktop) */}
+            <div className="hidden lg:flex items-center flex-grow justify-between ml-1">
+              <ul className="flex space-x-6">
+                <li>
+                  <Link className="hover:text-blue-600" to="/">
+                    Home
                   </Link>
-                </div>
-              </div>
+                </li>
+                <li>
+                  <Link className="hover:text-blue-600" to="/doctor/dashboard/">
+                    Doctor
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-blue-600" to="/contact">
+                    Admin
+                  </Link>
+                </li>
+              </ul>
 
-              {/* Toggle for Mobile */}
-              <div className="d-lg-none">
-                <button className="btn" onClick={toggleDrawer}>
-                  <i className="bi bi-list fs-2"></i>
-                </button>
+              <div>
+                {isLoggedIn() ? (
+                  <>
+                    <Link
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                      onClick={() => logout()}
+                    >
+                      Logout
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                      to="/login"
+                    >
+                      Login
+                    </Link>
+                  </>
+                )}
               </div>
+            </div>
+
+            {/* Toggle for Mobile */}
+            <div className="lg:hidden">
+              <button
+                onClick={toggleDrawer}
+                className="text-gray-800 focus:outline-none"
+              >
+                {showDrawer ? (
+                  <FiX className="text-3xl transition-transform duration-300" />
+                ) : (
+                  <FiMenu className="text-3xl transition-transform duration-300" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -113,58 +124,68 @@ const Navbar = () => {
       {/* Page Content Spacer */}
       <div style={{ height: `${headerHeight}px` }}></div>
 
+      {/* Overlay when drawer is open */}
+      {showDrawer && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40"
+          onClick={toggleDrawer}
+        ></div>
+      )}
+
       {/* Mobile Drawer */}
       <div
-        className={`mobile-drawer position-fixed top-0 end-0 bg-white shadow p-4 h-100 ${
-          showDrawer ? "open" : ""
+        className={`fixed top-0 right-0 bg-white mt-10 shadow-lg p-6 h-full transform transition-transform duration-300 ease-in-out ${
+          showDrawer ? "translate-x-0" : "translate-x-full"
         }`}
-        style={{ width: "250px", zIndex: 1050 }}
+        style={{ width: "270px", zIndex: 1050 }}
       >
-        <button className="btn-close mb-4" onClick={toggleDrawer}></button>
-        <ul className="nav flex-column">
-          <li className="nav-item">
-            <Link className="nav-link" to="/">
+        <ul className="flex flex-col space-y-4  font-medium">
+          <li>
+            <Link className="hover:text-blue-600" to="/">
               Home
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/about">
+          <li>
+            <Link className="hover:text-blue-600" to="/about">
               About
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/cranial">
+          <li>
+            <Link className="hover:text-blue-600" to="/cranial">
               Cranial
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/spinal">
+          <li>
+            <Link className="hover:text-blue-600" to="/spinal">
               Spinal
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/testimonial">
+          <li>
+            <Link className="hover:text-blue-600" to="/testimonial">
               Testimonial
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/blog">
+          <li>
+            <Link className="hover:text-blue-600" to="/blog">
               Blogs
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/contact">
+          <li>
+            <Link className="hover:text-blue-600" to="/contact">
               Contact
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/reminder">
+          <li>
+            <Link className="hover:text-blue-600" to="/reminder">
               Reminder
             </Link>
           </li>
-          <li className="nav-item mt-3">
-            <Link className="btn btn-success w-100" to="/appointment">
-              BOOK A APPOINTMENT
+          <li className="mt-5">
+            <Link
+              className="bg-green-600 hover:bg-green-700 text-white w-full block text-center py-2 rounded-full"
+              to="/appointment"
+            >
+              BOOK AN APPOINTMENT
             </Link>
           </li>
         </ul>
