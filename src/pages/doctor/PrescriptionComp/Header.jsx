@@ -2,7 +2,7 @@ import React from "react";
 
 const PrescriptionHeader = () => {
   return (
-    <div className="w-full border-b-4 border-black">
+    <div className="w-full border-b-2 border-black ">
       {/* Top section */}
       <div className="flex justify-between items-start bg-gradient-to-r from-sky-200 to-sky-300 p-4">
         {/* Left side (Doctor details) */}
@@ -31,7 +31,7 @@ const PrescriptionHeader = () => {
       </div>
 
       {/* Patient details line */}
-      <div className="text-sm px-4 py-2">
+      <div className="text-sm px-4 py-2 pb-3">
         <div className="flex flex-wrap justify-between">
           <p>
             Name: __________________________________________ &nbsp; Age/Sex: ________________ &nbsp; Phone:

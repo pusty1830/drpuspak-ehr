@@ -1,8 +1,8 @@
 // src/pages/doctor/EPrescription.jsx
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaTrash, FaSave } from "react-icons/fa";
+import { FaPlus, FaTrash, FaSave, FaFilePdf, FaChevronDown } from "react-icons/fa";
 import { getUserId } from "../../services/axiosClient";
-import jsPDF from "jspdf"; // ✅ install with: npm install jspdf
+import jsPDF from "jspdf";
 import { createPrescription } from "../../services/services";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -15,8 +15,24 @@ const defaultMedicine = () => ({
   days: "",
 });
 
-
-  
+// Medical advice options for the dropdown
+const ADVICE_OPTIONS = [
+  "CT Scan",
+  "MRI",
+  "X-Ray",
+  "Ultrasound",
+  "Blood Test",
+  "Urine Test",
+  "ECG",
+  "EEG",
+  "Endoscopy",
+  "Colonoscopy",
+  "Biopsy",
+  "Physical Therapy",
+  "Follow-up in 1 week",
+  "Follow-up in 2 weeks",
+  "Other"
+];
 
 const EPrescription = ({ patient, onClose, onSave }) => {
   const navigate = useNavigate();
@@ -28,7 +44,11 @@ const EPrescription = ({ patient, onClose, onSave }) => {
     medicines: [defaultMedicine()],
     notes: "",
     nextVisit: "",
+    advice: [],
   });
+
+  const [customAdvice, setCustomAdvice] = useState("");
+  const [showAdviceDropdown, setShowAdviceDropdown] = useState(false);
   const [history, setHistory] = useState(null);
 
   useEffect(() => {
@@ -62,41 +82,101 @@ const EPrescription = ({ patient, onClose, onSave }) => {
     }));
   };
 
+  const handleAdviceSelect = (advice) => {
+    if (advice === "Other") {
+      if (customAdvice.trim() && !data.advice.includes(customAdvice)) {
+        setData(prev => ({ ...prev, advice: [...prev.advice, customAdvice] }));
+        setCustomAdvice("");
+      }
+      return;
+    }
+    
+    if (!data.advice.includes(advice)) {
+      setData(prev => ({ ...prev, advice: [...prev.advice, advice] }));
+    }
+    setShowAdviceDropdown(false);
+  };
+
+  const removeAdvice = (index) => {
+    setData(prev => ({
+      ...prev,
+      advice: prev.advice.filter((_, i) => i !== index)
+    }));
+  };
+
   const generatePDF = (payLoad) => {
     const doc = new jsPDF();
 
+    // Header with styling
+    doc.setFillColor(59, 130, 246);
+    doc.rect(0, 0, 220, 20, 'F');
     doc.setFontSize(16);
-    doc.text("E-Prescription", 14, 20);
+    doc.setTextColor(255, 255, 255);
+    doc.text("E-PRESCRIPTION", 105, 12, { align: "center" });
 
+    // Patient information
     doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
     doc.text(`Patient: ${payLoad.name} (ID: ${payLoad.patientId})`, 14, 30);
     doc.text(`Condition: ${payLoad.condition}`, 14, 40);
     doc.text(`Doctor ID: ${payLoad.doctorId}`, 14, 50);
-    doc.text(`Next Visit: ${payLoad.nextVisit || "N/A"}`, 14, 60);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 60);
+    doc.text(`Next Visit: ${payLoad.nextVisit || "N/A"}`, 14, 70);
 
-    let y = 75;
+    // Medicines section
+    let y = 85;
     doc.setFontSize(13);
-    doc.text("Medicines:", 14, y);
+    doc.setDrawColor(59, 130, 246);
+    doc.line(14, y, 80, y);
+    doc.text("Medications:", 14, y);
     y += 10;
 
     payLoad.drug.forEach((med, i) => {
       doc.setFontSize(11);
       doc.text(
-        `${i + 1}. ${med.name} | ${med.dose} | ${med.freq} | ${med.days} days`,
+        `${i + 1}. ${med.name} - ${med.dose} - ${med.freq} - ${med.days} days`,
         20,
         y
       );
       y += 8;
     });
 
+    // Advice section
     y += 10;
-    doc.setFontSize(12);
+    doc.setFontSize(13);
+    doc.line(14, y, 60, y);
+    doc.text("Medical Advice:", 14, y);
+    y += 10;
+    
+    if (payLoad.advice && payLoad.advice.length > 0) {
+      payLoad.advice.forEach((advice, i) => {
+        doc.setFontSize(11);
+        doc.text(`• ${advice}`, 20, y);
+        y += 8;
+      });
+    } else {
+      doc.setFontSize(11);
+      doc.text("No specific advice", 20, y);
+      y += 8;
+    }
+
+    // Notes section
+    y += 10;
+    doc.setFontSize(13);
+    doc.line(14, y, 50, y);
     doc.text("Notes:", 14, y);
     y += 8;
     doc.setFontSize(11);
-    doc.text(payLoad.notes || "No notes", 20, y);
+    const splitNotes = doc.splitTextToSize(payLoad.notes || "No notes", 180);
+    doc.text(splitNotes, 20, y);
 
-    // ✅ Download PDF
+    // Footer
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("This is a computer-generated document, no signature required", 105, pageHeight - 10, { align: "center" });
+
+    // Download PDF
     doc.save(`prescription_${payLoad.patientId}.pdf`);
   };
 
@@ -113,20 +193,28 @@ const EPrescription = ({ patient, onClose, onSave }) => {
         days: m.days,
       })),
       messages: data.notes,
+      advice: data.advice,
+      nextVisit: data.nextVisit
     };
 
+
+
     createPrescription(payLoad).then((res) => {
+
+      console.log("advicessssssss",payLoad)
       // Generate PDF
       generatePDF(payLoad);
 
       // Call parent save handler
       onSave(payLoad);
-      toast("Prescription Saved Successfully");
+      toast.success("Prescription Saved Successfully");
 
-       // ✅ Navigate to Prescription page with data
-    navigate("/prescription", { state: { prescription: payLoad } });
+      // Navigate to Prescription page with data
+      navigate("/prescription", { state: { prescription: payLoad } });
 
       onClose();
+    }).catch(error => {
+      toast.error("Error saving prescription: " + error.message);
     });
   };
 
@@ -134,10 +222,10 @@ const EPrescription = ({ patient, onClose, onSave }) => {
     // full-screen modal overlay
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-xl w-full md:w-3/4 max-h-[90vh] overflow-auto shadow-lg p-6">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start mb-6 pb-4 border-b">
           <div>
-            <h3 className="text-xl font-semibold">E-Prescription</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-2xl font-bold text-blue-600">E-Prescription</h3>
+            <p className="text-sm text-gray-500 mt-1">
               Patient ID: {data.patientId} · {data.name}
             </p>
           </div>
@@ -145,83 +233,89 @@ const EPrescription = ({ patient, onClose, onSave }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded"
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
-              <FaSave /> Save
+              <FaSave /> Save & Print
             </button>
-            <button onClick={onClose} className="px-3 py-2 bg-gray-100 rounded">
+            <button 
+              onClick={onClose} 
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
               Close
             </button>
           </div>
         </div>
 
         {/* Condition & Next Visit */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="text-sm font-medium">Condition</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
             <input
               value={data.condition}
               onChange={(e) => setData({ ...data, condition: e.target.value })}
-              className="w-full border rounded p-2 mt-1"
-              placeholder="e.g. Fever"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g. Hypertension, Diabetes"
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Next Visit</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Next Visit</label>
             <input
               value={data.nextVisit}
               onChange={(e) => setData({ ...data, nextVisit: e.target.value })}
               type="date"
-              className="w-full border rounded p-2 mt-1"
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
 
         {/* Medicines list */}
-        <div className="mt-5">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium">Medicines</h4>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-medium text-lg text-gray-800">Medications</h4>
             <button
               onClick={addMedicine}
-              className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
-              <FaPlus /> Add
+              <FaPlus /> Add Medicine
             </button>
           </div>
 
-          <div className="mt-3 space-y-3">
+          <div className="space-y-4">
             {data.medicines.map((m) => (
               <div
                 key={m.id}
-                className="grid grid-cols-1 md:grid-cols-6 gap-2 items-center border rounded p-3"
+                className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center border border-gray-200 rounded-lg p-4 bg-gray-50/50"
               >
                 <input
-                  className="md:col-span-2 border rounded p-2"
+                  className="md:col-span-4 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Medicine name"
                   value={m.name}
                   onChange={(e) => updateMedicine(m.id, "name", e.target.value)}
                 />
                 <input
-                  className="md:col-span-1 border rounded p-2"
+                  className="md:col-span-2 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Dose (e.g. 500mg)"
                   value={m.dose}
                   onChange={(e) => updateMedicine(m.id, "dose", e.target.value)}
                 />
                 <input
-                  className="md:col-span-1 border rounded p-2"
-                  placeholder="Freq (e.g. 2x/day)"
+                  className="md:col-span-2 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Frequency (e.g. 2x/day)"
                   value={m.freq}
                   onChange={(e) => updateMedicine(m.id, "freq", e.target.value)}
                 />
                 <input
-                  className="md:col-span-1 border rounded p-2"
+                  className="md:col-span-2 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Days"
+                  type="number"
+                  min="1"
                   value={m.days}
                   onChange={(e) => updateMedicine(m.id, "days", e.target.value)}
                 />
                 <button
-                  className="md:col-span-1 bg-red-100 text-red-600 p-2 rounded"
+                  className="md:col-span-2 bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center"
                   onClick={() => removeMedicine(m.id)}
+                  title="Remove medicine"
                 >
                   <FaTrash />
                 </button>
@@ -230,26 +324,88 @@ const EPrescription = ({ patient, onClose, onSave }) => {
           </div>
         </div>
 
+        {/* Advice Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-medium text-lg text-gray-800">Medical Advice</h4>
+          </div>
+          
+          <div className="relative mb-3">
+            <button
+              onClick={() => setShowAdviceDropdown(!showAdviceDropdown)}
+              className="w-full flex items-center justify-between border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <span>Select medical advice</span>
+              <FaChevronDown className={`transition-transform ${showAdviceDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showAdviceDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {ADVICE_OPTIONS.map((option, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleAdviceSelect(option)}
+                    className="p-3 hover:bg-blue-50 cursor-pointer"
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Custom advice input for "Other" option */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3">
+            <input
+              className="md:col-span-10 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter custom advice"
+              value={customAdvice}
+              onChange={(e) => setCustomAdvice(e.target.value)}
+            />
+            <button
+              onClick={() => handleAdviceSelect("Other")}
+              className="md:col-span-2 bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Add Custom
+            </button>
+          </div>
+          
+          {/* Selected advice items */}
+          <div className="flex flex-wrap gap-2">
+            {data.advice.map((item, index) => (
+              <div key={index} className="bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm flex items-center">
+                {item}
+                <button
+                  onClick={() => removeAdvice(index)}
+                  className="ml-2 text-blue-600 hover:text-blue-800"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Notes */}
-        <div className="mt-5">
-          <label className="text-sm font-medium">Notes</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
           <textarea
             value={data.notes}
             onChange={(e) => setData({ ...data, notes: e.target.value })}
-            className="w-full border rounded p-2 mt-1 h-24"
-            placeholder="Examination notes, instructions..."
+            className="w-full border border-gray-300 rounded-lg p-3 h-32 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Examination findings, instructions, precautions..."
           />
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 rounded border">
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded bg-blue-600 text-white"
+            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
           >
-            Save Prescription
+            <FaFilePdf /> Save & Generate PDF
           </button>
         </div>
       </div>
