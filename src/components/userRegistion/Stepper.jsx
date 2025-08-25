@@ -14,7 +14,7 @@ const steps = [
 
 const pathIndex = {
   // "/register": 0,
-  "/register/usertype": 0,
+  "/": 0,
   "/form": 1,
   "/doctors": 2,
   "/agreement": 3,
