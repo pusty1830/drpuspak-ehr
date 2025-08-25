@@ -5,6 +5,7 @@ import { getUserId } from "../../services/axiosClient";
 import jsPDF from "jspdf"; // ✅ install with: npm install jspdf
 import { createPrescription } from "../../services/services";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const defaultMedicine = () => ({
   id: Date.now().toString(),
@@ -14,7 +15,12 @@ const defaultMedicine = () => ({
   days: "",
 });
 
+
+  
+
 const EPrescription = ({ patient, onClose, onSave }) => {
+  const navigate = useNavigate();
+
   const [data, setData] = useState({
     patientId: patient.patientId || "",
     name: patient.name || "",
@@ -116,6 +122,9 @@ const EPrescription = ({ patient, onClose, onSave }) => {
       // Call parent save handler
       onSave(payLoad);
       toast("Prescription Saved Successfully");
+
+       // ✅ Navigate to Prescription page with data
+    navigate("/prescription", { state: { prescription: payLoad } });
 
       onClose();
     });

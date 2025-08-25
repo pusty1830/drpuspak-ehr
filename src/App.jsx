@@ -9,6 +9,8 @@ import { ToastContainer } from "react-toastify";
 import { RegistrationProvider } from "./context/RegistrationContext"; // ⬅️ import
 import Footer from "./components/shared/Footer";
 import Navbar from "./components/shared/Header";
+import PrescriptionPage from "./pages/doctor/PrescriptionPage";
+
 
 const App = () => {
   return (
@@ -31,7 +33,10 @@ const App = () => {
             path="/doctor/dashboard/"
             element={<PrivateRoute component={DoctorDashboard} />}
           />
+                    <Route path="/prescription" element={<PrescriptionPage />} />
+
         </Routes>
+        
       </main>
       <Footer />
       <ToastContainer />
