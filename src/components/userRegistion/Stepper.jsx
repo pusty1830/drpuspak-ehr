@@ -15,11 +15,11 @@ const steps = [
 const pathIndex = {
   // "/register": 0,
   "/register/usertype": 0,
-  "/register/form": 1,
-  "/register/doctors": 2,
-  "/register/agreement": 3,
-  "/register/payment": 4,
-  "/register/success": 5,
+  "/form": 1,
+  "/doctors": 2,
+  "/agreement": 3,
+  "/payment": 4,
+  "/success": 5,
 };
 
 const Stepper = () => {
