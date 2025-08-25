@@ -21,6 +21,16 @@ import {
 } from "../../services/services";
 import { getUserId } from "../../services/axiosClient";
 
+const isToday = (date) => {
+  const today = new Date();
+  const d = new Date(date);
+  return (
+    d.getDate() === today.getDate() &&
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear()
+  );
+};
+
 const DoctorDashboard = () => {
   const navigate = useNavigate();
   const [view, setView] = useState("today");
@@ -46,17 +56,13 @@ const DoctorDashboard = () => {
 
     getAllDoctor(Payload)
       .then((res) => {
-        console.log(res);
         const firstDoctor = res?.data?.data?.rows?.[0];
 
         if (firstDoctor) {
-          // Set doctor name from first API
           const doctorName = firstDoctor.userName || "";
 
-          // Then fetch details from second API with userId
           getDoctorDetailswithuserId(firstDoctor.id).then((detailRes) => {
             const details = detailRes?.data?.data || {};
-            console.log(details);
 
             setDoctor({
               name: doctorName,
@@ -70,80 +76,71 @@ const DoctorDashboard = () => {
       });
   }, []);
 
-  // get Booking Details
-  useEffect(() => {
-    const today = new Date();
-    const todayUTC = new Date(
-      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
-    );
-
-    const Payload = {
-      data: {
-        filter: "",
-        doctorId: getUserId(),
-        bookingDate: todayUTC,
-      },
-      page: 0,
-      pageSize: 50,
-      order: [["createdAt", "ASC"]],
-    };
-
-    getAllBooking(Payload)
-      .then((res) => {
-        setAppointments(res?.data?.data?.rows || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching bookings:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    const payload = {
-      data: {
-        filter: "",
-        doctorId: getUserId(),
-      },
-      page: 0,
-      pageSize: 50,
-      order: [["createdAt", "ASC"]],
-    };
-
-    getAllPrescription(payload)
-      .then((res) => {
-        const prescriptions = res?.data?.data?.rows || [];
-
-        // ✅ Today's prescriptions
-        const todaysPrescriptions = prescriptions.filter((p) =>
-          isToday(p.createdAt)
-        );
-
-        // ✅ Patients who already have today's prescription
-        const todaysUserIds = todaysPrescriptions.map((p) => p.userId);
-
-        // ✅ Filter out from appointments
-        const todaysAppointmentsWithoutPrescription = appointments.filter(
-          (appt) => !todaysUserIds.includes(appt.patientId)
-        );
-
-        setAppointments(todaysAppointmentsWithoutPrescription);
-        setRecentPatients(todaysPrescriptions);
-      })
-      .catch((err) => console.error("Error fetching prescriptions:", err));
-  }, [appointments]);
-
+  // fetch bookings + prescriptions together
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      console.log("jihugy");
+      // fetch bookings
+      const today = new Date();
+      const todayUTC = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate()
+        )
+      );
+
+      const bookingPayload = {
+        data: { filter: "", doctorId: getUserId(), bookingDate: todayUTC },
+        page: 0,
+        pageSize: 50,
+        order: [["createdAt", "ASC"]],
+      };
+
+      const bookingRes = await getAllBooking(bookingPayload);
+      const bookings = bookingRes?.data?.data?.rows || [];
+
+      // fetch prescriptions
+      const prescPayload = {
+        data: { filter: "", doctorId: getUserId() },
+        page: 0,
+        pageSize: 50,
+        order: [["createdAt", "ASC"]],
+      };
+
+      const prescRes = await getAllPrescription(prescPayload);
+      const prescriptions = prescRes?.data?.data?.rows || [];
+
+      // filter today's prescriptions
+      const todaysPrescriptions = prescriptions.filter((p) =>
+        isToday(p.createdAt)
+      );
+      const todaysUserIds = todaysPrescriptions.map((p) => p.userId);
+
+      // remove patients already prescribed
+      const todaysAppointmentsWithoutPrescription = bookings.filter(
+        (appt) => !todaysUserIds.includes(appt.userId)
+      );
+
+      setAppointments(todaysAppointmentsWithoutPrescription);
+      setRecentPatients(todaysPrescriptions);
+
+      // update stats
+      setStats({
+        todayCount: bookings.length,
+        recentCount: prescriptions.length,
+        completed: todaysPrescriptions.length,
+      });
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const openPrescription = (patient) => {
     setSelectedPatient(patient);
@@ -153,7 +150,9 @@ const DoctorDashboard = () => {
 
   const savePrescription = async (presc) => {
     try {
-      console.log("jihugyftd");
+      console.log("Saving prescription...", presc);
+      // await createPrescription(presc); // plug in when ready
+      await fetchData(); // refresh dashboard after save
     } catch (error) {
       console.error("Error saving prescription:", error);
     }
@@ -188,7 +187,7 @@ const DoctorDashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Today's Appointments</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {appointments.length}
+                  {stats.todayCount}
                 </p>
               </div>
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
