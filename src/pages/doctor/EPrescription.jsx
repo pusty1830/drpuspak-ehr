@@ -193,7 +193,7 @@ const EPrescription = ({ patient, onClose, onSave }) => {
         days: m.days,
       })),
       messages: data.notes,
-      advice: data.advice,
+      advices: data.advice,
       nextVisit: data.nextVisit
     };
 
