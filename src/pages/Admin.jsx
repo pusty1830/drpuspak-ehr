@@ -46,7 +46,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="mx-auto p-4 w-full md:w-full">
+    <div className="mx-auto p-4 w-full md:w-full mt-4">
       <h2 className="text-xl font-semibold mb-4">Education Dashboard</h2>
 
       <div className=" w-full gap-6 flex flex-wrap justify-center">
