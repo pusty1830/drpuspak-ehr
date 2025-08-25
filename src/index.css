@@ -25,3 +25,31 @@
   z-index: 1;
   position: relative;
 }
+
+
+
+
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  color: #333;
+}
+
+.nav-link {
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.nav-logo {
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.2px;
+}
+
+.nav-btn {
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}

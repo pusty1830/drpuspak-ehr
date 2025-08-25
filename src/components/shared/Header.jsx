@@ -84,7 +84,7 @@ const Navbar = () => {
             </Link>
 
             {/* Nav Links (Desktop) */}
-            <div className="hidden lg:flex items-center flex-grow justify-between ml-1">
+            <div className="hidden lg:flex items-center flex-grow justify-between ml-1 md:ml-4">
               <ul className="flex space-x-6">
                 {navLinks.map((link, idx) => (
                   <li key={idx}>
