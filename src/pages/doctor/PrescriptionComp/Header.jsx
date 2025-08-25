@@ -31,20 +31,19 @@ const PrescriptionHeader = () => {
       </div>
 
       {/* Patient details line */}
-      <div className="text-sm px-4 py-2 pb-3">
-        <div className="flex flex-wrap justify-between">
-          <p>
-            Name: __________________________________________ &nbsp; Age/Sex: ________________ &nbsp; Phone:
-            ________________________
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-between mt-1">
-          <p>
-            Address: _____________________ &nbsp; BP: ______ &nbsp; Pulse:
-            ______ &nbsp; Wt: _________ &nbsp; Ht: __________ &nbsp; Temp: ___________
-          </p>
-        </div>
-      </div>
+         <div className="text-sm px-4 py-2 pb-3">
+              <div className="flex flex-wrap justify-between">
+                <p>
+                  Name: ________________________________ &nbsp; Age/Sex: ________ &nbsp; Phone: __________
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-between mt-1">
+                <p>
+                  Address: __________________ &nbsp; BP: _+_____ &nbsp; Pulse: ___ &nbsp; Wt: _____ &nbsp; Ht: ___ &nbsp; Temp: ___
+                </p>
+              </div>
+            </div>
+          
     </div>
   );
 };
