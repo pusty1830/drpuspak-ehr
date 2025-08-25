@@ -10,7 +10,7 @@ import { RegistrationProvider } from "./context/RegistrationContext"; // ⬅️ 
 import Footer from "./components/shared/Footer";
 import Navbar from "./components/shared/Header";
 import PrescriptionPage from "./pages/doctor/PrescriptionPage";
-
+import Dashboard from "./pages/Admin";
 
 const App = () => {
   return (
@@ -31,12 +31,15 @@ const App = () => {
           <Route path="/login/:role" element={<Login />} /> {/* dynamic */}
           <Route
             path="/doctor/dashboard/"
-            element={<PrivateRoute component={DoctorDashboard} />}
+            element={<PrivateRoute component={DoctorDashboard}  allowedRoles={["Doctor"]}/>}
+            
           />
-                    <Route path="/prescription" element={<PrescriptionPage />} />
-
+          <Route
+            path="/admin"
+            element={<PrivateRoute component={Dashboard} allowedRoles={["Admin"]} />}
+          />
+          <Route path="/prescription" element={<PrescriptionPage />} />
         </Routes>
-        
       </main>
       <Footer />
       <ToastContainer />

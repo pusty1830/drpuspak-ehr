@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FiMenu, FiX } from "react-icons/fi"; // modern icons
-import { isLoggedIn, logout } from "../../services/axiosClient";
+import { FiMenu, FiX } from "react-icons/fi";
+import { getUserRole, isLoggedIn, logout } from "../../services/axiosClient";
 
 const Navbar = () => {
   const [showDrawer, setShowDrawer] = useState(false);
@@ -17,10 +17,32 @@ const Navbar = () => {
     }
   }, []);
 
-  // Close sidebar on route change
   useEffect(() => {
     setShowDrawer(false);
   }, [location]);
+
+  // ✅ Role based nav links
+  const navLinksByRole = {
+    doctor: [
+      { label: "Home", path: "/" },
+      { label: "Doctor Dashboard", path: "/doctor/dashboard/" },
+      { label: "Download Reminder Data", path: "/doctor/dashboard/" },
+    ],
+    admin: [
+      { label: "Home", path: "/" },
+      { label: "Admin Dashboard", path: "/admin" },
+      { label: "Doctors", path: "/admin" },
+      { label: "Download Reminder Data", path: "/doctor/dashboard/" },
+    ],
+    user: [
+      { label: "Home", path: "/" },
+      { label: "Doctor Dashboard", path: "/doctor/dashboard/" },
+      { label: "Admin Dashboard", path: "/admin" },
+    ],
+  };
+
+  const userRole = getUserRole()?.toLowerCase(); // "doctor" | "admin" | "user"
+  const navLinks = navLinksByRole[userRole] || navLinksByRole.user;
 
   return (
     <>
@@ -64,42 +86,30 @@ const Navbar = () => {
             {/* Nav Links (Desktop) */}
             <div className="hidden lg:flex items-center flex-grow justify-between ml-1">
               <ul className="flex space-x-6">
-                <li>
-                  <Link className="hover:text-blue-600" to="/">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:text-blue-600" to="/doctor/dashboard/">
-                    Doctor
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:text-blue-600" to="/contact">
-                    Admin
-                  </Link>
-                </li>
+                {navLinks.map((link, idx) => (
+                  <li key={idx}>
+                    <Link className="hover:text-blue-600" to={link.path}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
 
               <div>
                 {isLoggedIn() ? (
-                  <>
-                    <Link
-                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
-                      onClick={() => logout()}
-                    >
-                      Logout
-                    </Link>
-                  </>
+                  <button
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                    onClick={() => logout()}
+                  >
+                    Logout
+                  </button>
                 ) : (
-                  <>
-                    <Link
-                      className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
-                      to="/login"
-                    >
-                      Login
-                    </Link>
-                  </>
+                  <Link
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-2 uppercase font-semibold"
+                    to="/login"
+                  >
+                    Login
+                  </Link>
                 )}
               </div>
             </div>
@@ -121,10 +131,10 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Page Content Spacer */}
+      {/* Spacer */}
       <div style={{ height: `${headerHeight}px` }}></div>
 
-      {/* Overlay when drawer is open */}
+      {/* Overlay */}
       {showDrawer && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40"
@@ -139,47 +149,15 @@ const Navbar = () => {
         }`}
         style={{ width: "270px", zIndex: 1050 }}
       >
-        <ul className="flex flex-col space-y-4  font-medium">
-          <li>
-            <Link className="hover:text-blue-600" to="/">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/about">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/cranial">
-              Cranial
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/spinal">
-              Spinal
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/testimonial">
-              Testimonial
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/blog">
-              Blogs
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/contact">
-              Contact
-            </Link>
-          </li>
-          <li>
-            <Link className="hover:text-blue-600" to="/reminder">
-              Reminder
-            </Link>
-          </li>
+        <ul className="flex flex-col space-y-4 font-medium">
+          {navLinks.map((link, idx) => (
+            <li key={idx}>
+              <Link className="hover:text-blue-600" to={link.path}>
+                {link.label}
+              </Link>
+            </li>
+          ))}
+
           <li className="mt-5">
             <Link
               className="bg-green-600 hover:bg-green-700 text-white w-full block text-center py-2 rounded-full"
