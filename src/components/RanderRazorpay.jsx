@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { R_KEY_ID } from "../services/Secret";
 import { useNavigate } from "react-router-dom";
-import { createBooking, verifyPayment } from "../services/services";
+import {
+  createBooking,
+  createPayment,
+  verifyPayment,
+} from "../services/services";
 import { toast } from "react-toastify";
 
 const RenderRazorpay = ({ orderDetails, bookingDetails }) => {
@@ -42,17 +46,34 @@ const RenderRazorpay = ({ orderDetails, bookingDetails }) => {
           });
 
           if (res?.status === 200) {
-            if (bookingDetails?.step1.type === "new") {
+            if (bookingDetails?.step1.userType === "new") {
               const payLoad = {
                 userId: bookingDetails?.step4?.userId,
                 doctorId: bookingDetails?.step3?.doctor?.id,
                 bookingDate: bookingDetails?.step2?.bookingDate,
               };
               console.log(payLoad);
-              createBooking(payLoad).then((res) => {
-                toast("Payment Successfully Completed");
-                navigate("/success");
-              });
+              createBooking(payLoad)
+                .then((res) => {
+                  toast("Payment Successfully Completed");
+                  navigate("/success");
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+
+              const paymentPayload = {
+                userId: bookingDetails?.step4?.userId,
+                paidBy: "razorpay",
+                ammount: orderDetails.amount / 100,
+              };
+              createPayment(paymentPayload)
+                .then((res) => {
+                  console.log("Payment created Successfully");
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
             } else {
               const payLoad = {
                 userId: bookingDetails.step3.userId,
@@ -63,6 +84,18 @@ const RenderRazorpay = ({ orderDetails, bookingDetails }) => {
                 toast("Payment Successfully Completed");
                 navigate("/success");
               });
+              const paymentPayload = {
+                userId: bookingDetails.step3.userId,
+                paidBy: "razorpay",
+                ammount: orderDetails.amount / 100,
+              };
+              createPayment(paymentPayload)
+                .then((res) => {
+                  console.log("Payment created Successfully");
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
             }
           }
 

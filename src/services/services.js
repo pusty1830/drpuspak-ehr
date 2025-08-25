@@ -60,6 +60,14 @@ export function createOrder(payload) {
   return client.post(`/pay/orders`, payload);
 }
 
+export function createPayment(payload) {
+  return client.post(`/Payment/create`, payload);
+}
+
+export function getAllPayment(payLoad) {
+  return client.post(`/Payment/search-record`, payLoad);
+}
+
 export function getAllBooking(payLoad) {
   return client.post(`/Booking/search-record`, payLoad);
 }

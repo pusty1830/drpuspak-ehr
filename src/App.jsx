@@ -11,6 +11,8 @@ import Footer from "./components/shared/Footer";
 import Navbar from "./components/shared/Header";
 import PrescriptionPage from "./pages/doctor/PrescriptionPage";
 import Dashboard from "./pages/Admin";
+import DoctorTable from "./pages/Admin/Doctor";
+import ReminderTable from "./pages/Admin/Reminder";
 
 const App = () => {
   return (
@@ -31,12 +33,33 @@ const App = () => {
           <Route path="/login/:role" element={<Login />} /> {/* dynamic */}
           <Route
             path="/doctor/dashboard/"
-            element={<PrivateRoute component={DoctorDashboard}  allowedRoles={["Doctor"]}/>}
-            
+            element={
+              <PrivateRoute
+                component={DoctorDashboard}
+                allowedRoles={["Doctor"]}
+              />
+            }
           />
           <Route
             path="/admin"
-            element={<PrivateRoute component={Dashboard} allowedRoles={["Admin"]} />}
+            element={
+              <PrivateRoute component={Dashboard} allowedRoles={["Admin"]} />
+            }
+          />
+          <Route
+            path="/admin/doctor/"
+            element={
+              <PrivateRoute component={DoctorTable} allowedRoles={["Admin"]} />
+            }
+          />
+          <Route
+            path="/download/data/"
+            element={
+              <PrivateRoute
+                component={ReminderTable}
+                allowedRoles={["Admin", "Doctor"]}
+              />
+            }
           />
           <Route path="/prescription" element={<PrescriptionPage />} />
         </Routes>

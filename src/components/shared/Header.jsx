@@ -26,13 +26,13 @@ const Navbar = () => {
     doctor: [
       { label: "Home", path: "/" },
       { label: "Doctor Dashboard", path: "/doctor/dashboard/" },
-      { label: "Download Reminder Data", path: "/doctor/dashboard/" },
+      { label: "Download Reminder Data", path: "/download/data/" },
     ],
     admin: [
       { label: "Home", path: "/" },
       { label: "Admin Dashboard", path: "/admin" },
-      { label: "Doctors", path: "/admin" },
-      { label: "Download Reminder Data", path: "/doctor/dashboard/" },
+      { label: "Doctors", path: "/admin/doctor" },
+      { label: "Download Reminder Data", path: "/download/data/" },
     ],
     user: [
       { label: "Home", path: "/" },

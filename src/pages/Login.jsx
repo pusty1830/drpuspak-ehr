@@ -34,9 +34,6 @@ const Login = () => {
     };
 
     try {
-
-         
-
       const res = await signIn(payload);
 
       if (res?.statusText === "OK") {
@@ -44,7 +41,7 @@ const Login = () => {
         if (res?.data?.data?.role === "Doctor") {
           window.location.href = "/doctor/dashboard";
         } else if (res?.data?.data?.role === "Admin") {
-          window.location.href = "/reminder";
+          window.location.href = "/admin";
         } else {
           window.location.href = "/reminder";
         }

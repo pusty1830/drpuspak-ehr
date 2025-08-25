@@ -8,6 +8,7 @@ export default function StatCard({
   percentage,
   isIncrease,
   chart,
+  days
 }) {
   return (
     <div className="relative  max-w-[300px] rounded-lg shadow-xl overflow-hidden w-full md:w-1/2 lg:w-60 p-2 bg-white transition-all ">
@@ -69,7 +70,7 @@ export default function StatCard({
           <FaArrowDown className="text-red-500 text-xs sm:text-sm" />
         )}
         <span className="text-[10px] sm:text-xs text-gray-400">
-          in last 7 Days
+          in last {days} Days
         </span>
       </div>
     </div>
