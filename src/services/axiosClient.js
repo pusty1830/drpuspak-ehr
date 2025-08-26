@@ -1,8 +1,9 @@
 import { createAxiosClient } from "./axiosConfig";
 import { jwtDecode } from "jwt-decode";
 
-const BASE_URL = "http://localhost:8080/api/";
+// const BASE_URL = "http://localhost:8080/api/";
 
+const BASE_URL = "https://api.orthospinecare.shop/api/";
 export function getCurrentAccessToken() {
   return localStorage.getItem("accessToken");
 }

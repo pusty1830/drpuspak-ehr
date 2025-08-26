@@ -137,23 +137,7 @@ const Step2_Form = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-            {/* Booking Date */}
-            <div className="flex flex-col">
-              <label className="font-semibold text-gray-700">
-                Booking Date <span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="bookingDate"
-                type="date"
-                min={new Date().toISOString().split("T")[0]} // ✅ disable past dates
-                className="mt-1 p-2 border rounded shadow-sm border-gray-400 outline-none"
-              />
-              <ErrorMessage
-                name="bookingDate"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
+           
 
             {/* Full Name with voice */}
             <div className="flex flex-col relative">
@@ -204,6 +188,23 @@ const Step2_Form = () => {
               </button>
               <ErrorMessage
                 name="parentName"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+             {/* Booking Date */}
+            <div className="flex flex-col">
+              <label className="font-semibold text-gray-700">
+                Booking Date <span className="text-red-500">*</span>
+              </label>
+              <Field
+                name="bookingDate"
+                type="date"
+                min={new Date().toISOString().split("T")[0]} // ✅ disable past dates
+                className="mt-1 p-2 border rounded shadow-sm border-gray-400 outline-none"
+              />
+              <ErrorMessage
+                name="bookingDate"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />

@@ -116,7 +116,13 @@ const ExistingUser = () => {
       return;
     }
 
-    navigate("/doctors", { state: { userId: selectedUser, bookingDate } });
+    navigate("/doctors", {
+      state: {
+        userId: selectedUser.id,
+        userName: selectedUser.name,
+        bookingDate,
+      },
+    });
   };
 
   return (
@@ -181,7 +187,7 @@ const ExistingUser = () => {
                 users.map((user) => (
                   <div
                     key={user.id}
-                    onClick={() => setSelectedUser(user.id)}
+                    onClick={() => setSelectedUser(user)}
                     className={`cursor-pointer p-4 border rounded-lg shadow-sm transition ${
                       selectedUser === user.id
                         ? "bg-blue-100 border-blue-500"

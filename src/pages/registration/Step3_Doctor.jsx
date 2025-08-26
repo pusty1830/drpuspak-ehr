@@ -11,6 +11,7 @@ const Step3_Doctor = () => {
   const { updateFormData } = useRegistration();
   const location = useLocation();
   const userId = location.state?.userId;
+  const userName = location.state?.userName;
   const bookingDate = location.state?.bookingDate; // ✅ same name
 
   const [doctorInfo, setDoctorInfo] = useState({
@@ -63,6 +64,7 @@ const Step3_Doctor = () => {
         doctor: doctorInfo,
         userId: userId,
         bookingDate: bookingDate,
+        userName: userName,
       }); // fixed typo to "doctor"
     } else {
       updateFormData("step3", { doctor: doctorInfo }); // fixed typo to "doctor"

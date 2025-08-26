@@ -38,6 +38,7 @@ const Step5_Payment = () => {
       setLoading(false);
     }
   };
+  console.log(formData);
 
   return (
     <div className="min-h-[80vh] bg-gray-50 flex justify-center items-center ">
@@ -50,10 +51,10 @@ const Step5_Payment = () => {
 
           <div className="space-y-3 text-sm text-gray-700">
             <p>
-              <strong>Doctor:</strong> {formData?.name || "Dr. Pushpak"}
+              <strong>Doctor:</strong> {formData?.step3?.doctor?.name}
             </p>
             <p>
-              <strong>Department:</strong> {"General Medicine"}
+              <strong>Department:</strong> {formData?.step3?.doctor?.department}
             </p>
             <p>
               <strong>Consultation Timing:</strong> {"10:00 AM – 2:00 PM"}
@@ -76,7 +77,7 @@ const Step5_Payment = () => {
           </div>
 
           <button
-            onClick={() => navigate("/register/agreement")}
+            onClick={() => navigate("/agreement")}
             className="mt-6 inline-block text-sm text-blue-600 hover:underline"
           >
             ← Back to Agreement

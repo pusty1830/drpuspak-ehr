@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaCheckCircle,
@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@react-hook/window-size";
 import { useRegistration } from "../../context/RegistrationContext";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const Step6_Success = () => {
   const navigate = useNavigate();
@@ -47,9 +49,9 @@ const Step6_Success = () => {
       },
     },
   };
+
   useEffect(() => {
     if (formData?.step5?.bookingId) {
-      // Combine data into one object
       const finalBookingData = {
         bookingId: formData.step5.bookingId,
         patientName: formData.step2?.name,
@@ -59,19 +61,40 @@ const Step6_Success = () => {
         address: formData.step2?.address,
         parentName: formData.step2?.parentName,
         title: formData.step2?.title,
-        doctor: formData.step3?.docter, // careful: it's "docter" in your state
+        doctor: formData.step3?.docter,
         amount: formData.step5?.amount,
         status: formData.step5?.status,
         date: formData.step5?.date,
       };
-
-      // Save in localStorage
-      localStorage.setItem("appointmentData", JSON.stringify(finalBookingData));
     }
   }, [formData]);
 
+  const componentRef = useRef();
+
+  const handleDownload = async () => {
+    const input = componentRef.current;
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+    });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`Appointment_${formData?.step5?.bookingId || "details"}.pdf`);
+  };
+
   return (
-    <div className="min-h-[90vh] bg-gradient-to-br from-blue-50 to-green-50 flex justify-center items-center px-4 py-8">
+    <div
+      className="min-h-[90vh] flex justify-center items-center px-4 py-8"
+      style={{
+        background: "linear-gradient(to bottom right, #eff6ff, #f0fdf4)",
+      }}
+      ref={componentRef}
+    >
       {showConfetti && (
         <Confetti
           width={width}
@@ -88,7 +111,10 @@ const Step6_Success = () => {
         className="bg-white w-full max-w-7xl rounded-xl shadow-2xl overflow-hidden "
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-green-500 p-6 text-white relative overflow-hidden">
+        <div
+          className="p-6 text-white relative overflow-hidden"
+          style={{ background: "linear-gradient(to right, #2563eb, #22c55e)" }}
+        >
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-white bg-opacity-10 rounded-full"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white bg-opacity-10 rounded-full"></div>
 
@@ -106,9 +132,6 @@ const Step6_Success = () => {
               />
             </motion.div>
             <h2 className="text-2xl font-bold mb-1">Appointment Confirmed!</h2>
-            {/* <p className="text-blue-100 max-w-md">
-              Your booking with {"Doctor"} has been successfully completed. We've sent the details to your email.
-            </p> */}
           </motion.div>
         </div>
 
@@ -132,7 +155,7 @@ const Step6_Success = () => {
                 <p className="text-sm">
                   <span className="text-gray-500">Name:</span>{" "}
                   <span className="font-medium text-gray-800">
-                    {formData.step2?.parentName || "N/A"}
+                    {formData.step2?.name || formData.step3?.userName}
                   </span>
                 </p>
                 <p className="text-sm">
@@ -161,12 +184,14 @@ const Step6_Success = () => {
                 <p className="text-sm">
                   <span className="text-gray-500">Doctor:</span>{" "}
                   <span className="font-medium text-gray-800">
-                    {formData.step3?.docter?.name}
+                    {formData.step3?.doctor?.name}
                   </span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Department:</span>{" "}
-                  <span className="font-medium text-gray-800">{"N/A"}</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.step3?.doctor?.department}
+                  </span>
                 </p>
               </div>
             </motion.div>
@@ -188,13 +213,13 @@ const Step6_Success = () => {
                 <p className="text-sm">
                   <span className="text-gray-500">Date:</span>{" "}
                   <span className="font-medium text-gray-800">
-                    {formData.step5?.date}
+                    {formData.step2?.bookingDate || formData.step3?.bookingDate}
                   </span>
                 </p>
                 <p className="text-sm">
                   <span className="text-gray-500">Time Slot:</span>{" "}
                   <span className="font-medium text-gray-800">
-                    {"10:00 AM – 2:00 PM"}
+                    {"10:00 AM – 8:00 PM"}
                   </span>
                 </p>
               </div>
@@ -216,10 +241,7 @@ const Step6_Success = () => {
               <div className="space-y-2 pl-11">
                 <p className="text-sm">
                   <span className="text-gray-500">Status:</span>{" "}
-                  <span className="font-semibold text-green-600">Conform</span>
-                </p>
-                <p className="text-sm text-gray-600">
-                  You'll receive a reminder 24 hours before your appointment.
+                  <span className="font-semibold text-green-600">Confirm</span>
                 </p>
               </div>
             </motion.div>
@@ -233,9 +255,9 @@ const Step6_Success = () => {
             <p className="text-sm text-gray-600">
               Need to reschedule? Contact our support at{" "}
               <span className="font-medium text-blue-600">
-                support@medicare.com
+                drpuspak@gmail.com
               </span>{" "}
-              or call <span className="font-medium">+1 (555) 123-4567</span>
+              or call <span className="font-medium">+91 7873366631</span>
             </p>
           </motion.div>
 
@@ -247,18 +269,23 @@ const Step6_Success = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/")}
-              className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all"
+              onClick={() => {
+                window.location.href = "/";
+              }}
+              className="text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all"
+              style={{
+                background: "linear-gradient(to right, #2563eb, #3b82f6)",
+              }}
             >
               Go to Home
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/appointments")}
+              onClick={handleDownload}
               className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg shadow-sm transition-all"
             >
-              View My Appointments
+              Download Appointment
             </motion.button>
           </motion.div>
         </motion.div>

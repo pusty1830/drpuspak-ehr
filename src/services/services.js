@@ -49,9 +49,19 @@ export function getDoctorDetails(payLoad) {
   return client.post("/DoctorDetails/search-record", payLoad);
 }
 export function getDoctorDetailswithuserId(userId) {
-  return client.get("/DoctorDetails/search-one-record", { userId });
+  return client.get("/DoctorDetails/search-one-record", { params: { userId } });
 }
 
+export function getUserDatawithId(id) {
+  return client.get("/User/search-one-record", { params: { id } });
+}
+
+export function getUserDetailswithuserId(userId) {
+  console.log("user id is :", userId);
+  return client.get("/PatientDetails/search-one-record", {
+    params: { userId: userId },
+  });
+}
 export function verifyPayment(payload) {
   return client.post(`/pay/verify`, payload);
 }
@@ -77,4 +87,8 @@ export function createPrescription(payLoad) {
 }
 export function getAllPrescription(payLoad) {
   return client.post(`/Prescription/search-record`, payLoad);
+}
+
+export function createReminder(payLoad) {
+  return client.post(`/Reminder/create`, payLoad);
 }

@@ -1,9 +1,19 @@
 // src/pages/doctor/EPrescription.jsx
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaTrash, FaSave, FaFilePdf, FaChevronDown } from "react-icons/fa";
+import {
+  FaPlus,
+  FaTrash,
+  FaSave,
+  FaFilePdf,
+  FaChevronDown,
+} from "react-icons/fa";
 import { getUserId } from "../../services/axiosClient";
-import jsPDF from "jspdf";
-import { createPrescription } from "../../services/services";
+import {
+  createPrescription,
+  createReminder,
+  getUserDatawithId,
+  getUserDetailswithuserId,
+} from "../../services/services";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +24,24 @@ const defaultMedicine = () => ({
   freq: "",
   days: "",
 });
+
+const NEXT_VISIT_OPTIONS = [
+  "7 days",
+  "15 days",
+  "21 days",
+  "1 month",
+  "2 months",
+  "3 months",
+  "4 months",
+  "5 months",
+  "6 months",
+  "7 months",
+  "8 months",
+  "9 months",
+  "10 months",
+  "11 months",
+  "12 months",
+];
 
 // Medical advice options for the dropdown
 const ADVICE_OPTIONS = [
@@ -31,7 +59,7 @@ const ADVICE_OPTIONS = [
   "Physical Therapy",
   "Follow-up in 1 week",
   "Follow-up in 2 weeks",
-  "Other"
+  "Other",
 ];
 
 const EPrescription = ({ patient, onClose, onSave }) => {
@@ -49,7 +77,6 @@ const EPrescription = ({ patient, onClose, onSave }) => {
 
   const [customAdvice, setCustomAdvice] = useState("");
   const [showAdviceDropdown, setShowAdviceDropdown] = useState(false);
-  const [history, setHistory] = useState(null);
 
   useEffect(() => {
     // fetch patient history (mock)
@@ -82,102 +109,70 @@ const EPrescription = ({ patient, onClose, onSave }) => {
     }));
   };
 
+  const buildReminderPayload = async (patientId, nextVisitText, condition) => {
+    try {
+      // Fetch patient info
+      const patientRes = await getUserDatawithId(patientId);
+      const patient = patientRes?.data?.data || {};
+
+      // Fetch user info
+      const userRes = await getUserDetailswithuserId(patientId);
+      const user = userRes?.data?.data || {};
+
+      // Helper to convert nextVisit text to actual date
+      const convertNextVisitToDate = (text) => {
+        const today = new Date();
+        if (!text) return today.toISOString().split("T")[0];
+        if (text.includes("day"))
+          today.setDate(today.getDate() + parseInt(text));
+        else if (text.includes("month"))
+          today.setMonth(today.getMonth() + parseInt(text));
+        return today.toISOString().split("T")[0];
+      };
+
+      console.log(user);
+      console.log(patient);
+      // Build payload directly
+      const reminderaPayLoad = {
+        patientNumber: patient.phoneNumber || "",
+        patientName: patient.userName || "",
+        Age: user.age || "",
+        address: user.adress || "",
+        disease: condition || "",
+        fromWhere: "clinic",
+        nextVisit: convertNextVisitToDate(nextVisitText),
+      };
+
+      return reminderaPayLoad;
+    } catch (err) {
+      console.error("Error building reminder payload:", err);
+      return null;
+    }
+  };
+
   const handleAdviceSelect = (advice) => {
     if (advice === "Other") {
       if (customAdvice.trim() && !data.advice.includes(customAdvice)) {
-        setData(prev => ({ ...prev, advice: [...prev.advice, customAdvice] }));
+        setData((prev) => ({
+          ...prev,
+          advice: [...prev.advice, customAdvice],
+        }));
         setCustomAdvice("");
       }
       return;
     }
-    
+
     if (!data.advice.includes(advice)) {
-      setData(prev => ({ ...prev, advice: [...prev.advice, advice] }));
+      setData((prev) => ({ ...prev, advice: [...prev.advice, advice] }));
     }
     setShowAdviceDropdown(false);
   };
 
   const removeAdvice = (index) => {
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
-      advice: prev.advice.filter((_, i) => i !== index)
+      advice: prev.advice.filter((_, i) => i !== index),
     }));
-  };
-
-  const generatePDF = (payLoad) => {
-    const doc = new jsPDF();
-
-    // Header with styling
-    doc.setFillColor(59, 130, 246);
-    doc.rect(0, 0, 220, 20, 'F');
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
-    doc.text("E-PRESCRIPTION", 105, 12, { align: "center" });
-
-    // Patient information
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Patient: ${payLoad.name} (ID: ${payLoad.patientId})`, 14, 30);
-    doc.text(`Condition: ${payLoad.condition}`, 14, 40);
-    doc.text(`Doctor ID: ${payLoad.doctorId}`, 14, 50);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 60);
-    doc.text(`Next Visit: ${payLoad.nextVisit || "N/A"}`, 14, 70);
-
-    // Medicines section
-    let y = 85;
-    doc.setFontSize(13);
-    doc.setDrawColor(59, 130, 246);
-    doc.line(14, y, 80, y);
-    doc.text("Medications:", 14, y);
-    y += 10;
-
-    payLoad.drug.forEach((med, i) => {
-      doc.setFontSize(11);
-      doc.text(
-        `${i + 1}. ${med.name} - ${med.dose} - ${med.freq} - ${med.days} days`,
-        20,
-        y
-      );
-      y += 8;
-    });
-
-    // Advice section
-    y += 10;
-    doc.setFontSize(13);
-    doc.line(14, y, 60, y);
-    doc.text("Medical Advice:", 14, y);
-    y += 10;
-    
-    if (payLoad.advice && payLoad.advice.length > 0) {
-      payLoad.advice.forEach((advice, i) => {
-        doc.setFontSize(11);
-        doc.text(`• ${advice}`, 20, y);
-        y += 8;
-      });
-    } else {
-      doc.setFontSize(11);
-      doc.text("No specific advice", 20, y);
-      y += 8;
-    }
-
-    // Notes section
-    y += 10;
-    doc.setFontSize(13);
-    doc.line(14, y, 50, y);
-    doc.text("Notes:", 14, y);
-    y += 8;
-    doc.setFontSize(11);
-    const splitNotes = doc.splitTextToSize(payLoad.notes || "No notes", 180);
-    doc.text(splitNotes, 20, y);
-
-    // Footer
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("This is a computer-generated document, no signature required", 105, pageHeight - 10, { align: "center" });
-
-    // Download PDF
-    doc.save(`prescription_${payLoad.patientId}.pdf`);
   };
 
   const handleSave = async () => {
@@ -194,28 +189,38 @@ const EPrescription = ({ patient, onClose, onSave }) => {
       })),
       messages: data.notes,
       advices: data.advice,
-      nextVisit: data.nextVisit
+      nextVisit: data.nextVisit,
     };
 
+    const reminderPayload = await buildReminderPayload(
+      data.patientId,
+      data.nextVisit,
+      data.condition
+    );
+    if (reminderPayload) {
+      createReminder(reminderPayload)
+        .then((res) => {
+          toast("Reminder Added Successfully");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
 
+    createPrescription(payLoad)
+      .then((res) => {
+        // Call parent save handler
+        onSave(payLoad);
+        toast.success("Prescription Saved Successfully");
 
-    createPrescription(payLoad).then((res) => {
+        // Navigate to Prescription page with data
+        navigate("/prescription", { state: { prescription: payLoad } });
 
-      console.log("advicessssssss",payLoad)
-      // Generate PDF
-      generatePDF(payLoad);
-
-      // Call parent save handler
-      onSave(payLoad);
-      toast.success("Prescription Saved Successfully");
-
-      // Navigate to Prescription page with data
-      navigate("/prescription", { state: { prescription: payLoad } });
-
-      onClose();
-    }).catch(error => {
-      toast.error("Error saving prescription: " + error.message);
-    });
+        onClose();
+      })
+      .catch((error) => {
+        toast.error("Error saving prescription: " + error.message);
+      });
   };
 
   return (
@@ -237,8 +242,8 @@ const EPrescription = ({ patient, onClose, onSave }) => {
             >
               <FaSave /> Save & Print
             </button>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Close
@@ -249,7 +254,9 @@ const EPrescription = ({ patient, onClose, onSave }) => {
         {/* Condition & Next Visit */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Condition
+            </label>
             <input
               value={data.condition}
               onChange={(e) => setData({ ...data, condition: e.target.value })}
@@ -258,13 +265,21 @@ const EPrescription = ({ patient, onClose, onSave }) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Next Visit</label>
-            <input
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Next Visit
+            </label>
+            <select
               value={data.nextVisit}
               onChange={(e) => setData({ ...data, nextVisit: e.target.value })}
-              type="date"
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+            >
+              <option value="">Select next visit</option>
+              {NEXT_VISIT_OPTIONS.map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -327,18 +342,24 @@ const EPrescription = ({ patient, onClose, onSave }) => {
         {/* Advice Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-medium text-lg text-gray-800">Medical Advice</h4>
+            <h4 className="font-medium text-lg text-gray-800">
+              Medical Advice
+            </h4>
           </div>
-          
+
           <div className="relative mb-3">
             <button
               onClick={() => setShowAdviceDropdown(!showAdviceDropdown)}
               className="w-full flex items-center justify-between border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <span>Select medical advice</span>
-              <FaChevronDown className={`transition-transform ${showAdviceDropdown ? 'rotate-180' : ''}`} />
+              <FaChevronDown
+                className={`transition-transform ${
+                  showAdviceDropdown ? "rotate-180" : ""
+                }`}
+              />
             </button>
-            
+
             {showAdviceDropdown && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
                 {ADVICE_OPTIONS.map((option, index) => (
@@ -353,7 +374,7 @@ const EPrescription = ({ patient, onClose, onSave }) => {
               </div>
             )}
           </div>
-          
+
           {/* Custom advice input for "Other" option */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3">
             <input
@@ -369,11 +390,14 @@ const EPrescription = ({ patient, onClose, onSave }) => {
               Add Custom
             </button>
           </div>
-          
+
           {/* Selected advice items */}
           <div className="flex flex-wrap gap-2">
             {data.advice.map((item, index) => (
-              <div key={index} className="bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm flex items-center">
+              <div
+                key={index}
+                className="bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm flex items-center"
+              >
                 {item}
                 <button
                   onClick={() => removeAdvice(index)}
@@ -388,7 +412,9 @@ const EPrescription = ({ patient, onClose, onSave }) => {
 
         {/* Notes */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Additional Notes
+          </label>
           <textarea
             value={data.notes}
             onChange={(e) => setData({ ...data, notes: e.target.value })}
@@ -398,7 +424,10 @@ const EPrescription = ({ patient, onClose, onSave }) => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors"
+          >
             Cancel
           </button>
           <button
