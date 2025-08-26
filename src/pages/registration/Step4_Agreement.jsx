@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "../../context/RegistrationContext";
 import { createpatientDetails, createUser } from "../../services/services";
@@ -103,7 +103,7 @@ const Step4_Agreement = () => {
 
       <div className="flex justify-between">
         <button
-          onClick={() => navigate("/register/doctors")}
+          onClick={() => navigate("/doctors")}
           className="bg-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-400 font-semibold"
         >
           ← Back

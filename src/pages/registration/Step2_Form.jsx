@@ -357,7 +357,7 @@ const Step2_Form = () => {
             <div className="col-span-full flex justify-between mt-6">
               <button
                 type="button"
-                onClick={() => navigate("/register/usertype")}
+                onClick={() => navigate("/usertype")}
                 className="bg-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-400 font-semibold"
               >
                 ← Back

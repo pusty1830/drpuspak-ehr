@@ -99,7 +99,7 @@ const Step3_Doctor = () => {
 
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => navigate("/register/form")}
+          onClick={() => navigate("/form")}
           className="bg-gray-300 text-gray-700 py-2 px-6 rounded hover:bg-gray-400 font-semibold"
         >
           ← Back

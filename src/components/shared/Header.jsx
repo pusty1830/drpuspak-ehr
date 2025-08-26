@@ -34,11 +34,7 @@ const Navbar = () => {
       { label: "Doctors", path: "/admin/doctor" },
       { label: "Download Reminder Data", path: "/download/data/" },
     ],
-    user: [
-      { label: "Home", path: "/" },
-      { label: "Doctor Dashboard", path: "/doctor/dashboard/" },
-      { label: "Admin Dashboard", path: "/admin" },
-    ],
+    user: [{ label: "Home", path: "/" }],
   };
 
   const userRole = getUserRole()?.toLowerCase(); // "doctor" | "admin" | "user"
