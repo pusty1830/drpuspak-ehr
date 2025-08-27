@@ -8,6 +8,7 @@ import Step5_Payment from "../pages/registration/Step5_Payment";
 import Step6_Confirmation from "../pages/registration/Step6_Confirmation";
 import Stepper from "../components/userRegistion/Stepper";
 
+
 const RegistrationRoutes = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start py-4 md:pt-16">

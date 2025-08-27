@@ -92,3 +92,11 @@ export function getAllPrescription(payLoad) {
 export function createReminder(payLoad) {
   return client.post(`/Reminder/create`, payLoad);
 }
+
+export function getAllContactMessages(payLoad) {
+  return client.post(`/Contact/search-record`, payLoad);
+}
+
+export function deleteContactMessage(id) {
+  return client.delete(`/Contact/delete-record/${id}`);
+}

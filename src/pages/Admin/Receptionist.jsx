@@ -4,7 +4,7 @@ import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-export default function DoctorTable() {
+export default function ReceptionistTable() {
   const [users, setUsers] = useState([]);
   const [filterDate, setFilterDate] = useState("");
   const [showAddEditModal, setShowAddEditModal] = useState(false);
@@ -12,12 +12,12 @@ export default function DoctorTable() {
   const [selectedUser, setSelectedUser] = useState(null); // for edit or delete
 
   useEffect(() => {
-    fetchDoctors();
+    fetchReceptionists();
   }, []);
 
-  const fetchDoctors = () => {
+  const fetchReceptionists = () => {
     const payload = {
-      data: { filter: "", role: "Doctor" },
+      data: { filter: "", role: "Receptionist" },
       page: 0,
       pageSize: 100,
       order: [["createdAt", "ASC"]],
@@ -54,13 +54,13 @@ export default function DoctorTable() {
 
   const confirmDelete = () => {
     // ✅ DELETE API
-    console.log("Deleting doctor with id:", selectedUser.id);
+    console.log("Deleting Receptionist with id:", selectedUser.id);
     setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
     setShowDeleteModal(false);
   };
 
   // ✅ Yup Validation Schema
-  const DoctorSchema = Yup.object().shape({
+  const ReceptionistSchema = Yup.object().shape({
     userName: Yup.string().required("Name is required"),
     phoneNumber: Yup.string()
       .matches(/^[0-9]{10}$/, "Phone number must be 10 digits")
@@ -73,7 +73,7 @@ export default function DoctorTable() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-          All Doctors
+          All Receptionist
         </h3>
 
         <div className="flex items-center gap-2">
@@ -93,12 +93,12 @@ export default function DoctorTable() {
             </button>
           )}
 
-          {/* Add Doctor */}
+          {/* Add Receptionist */}
           {/* <button
             onClick={handleAdd}
             className="flex items-center gap-1 text-xs sm:text-sm px-3 py-1 rounded-full bg-green-50 text-green-700 hover:bg-green-100 transition"
           >
-            <FiPlus className="w-4 h-4" /> Add Doctor
+            <FiPlus className="w-4 h-4" /> Add Receptionist
           </button> */}
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function DoctorTable() {
               ) : (
                 <tr>
                   <td colSpan="6" className="text-center py-4 text-gray-500">
-                    No doctors found
+                    No Receptionists found
                   </td>
                 </tr>
               )}
@@ -175,7 +175,7 @@ export default function DoctorTable() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-lg font-semibold mb-4">
-              {selectedUser ? "Edit Doctor" : "Add Doctor"}
+              {selectedUser ? "Edit Receptionist" : "Add Receptionist"}
             </h2>
 
             <Formik
@@ -183,13 +183,13 @@ export default function DoctorTable() {
                 userName: selectedUser?.userName || "",
                 phoneNumber: selectedUser?.phoneNumber || "",
                 email: selectedUser?.email || "",
-                role: "Doctor",
+                role: "Receptionist",
               }}
-              validationSchema={DoctorSchema}
+              validationSchema={ReceptionistSchema}
               onSubmit={(values) => {
                 if (selectedUser) {
                   // ✅ EDIT API
-                  console.log("Updating doctor:", {
+                  console.log("Updating Receptionist:", {
                     id: selectedUser.id,
                     ...values,
                   });
@@ -200,7 +200,7 @@ export default function DoctorTable() {
                   );
                 } else {
                   // ✅ ADD API
-                  console.log("Adding doctor:", values);
+                  console.log("Adding Receptionist:", values);
                   const newUser = {
                     id: Date.now(),
                     ...values,

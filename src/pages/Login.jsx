@@ -42,8 +42,10 @@ const Login = () => {
           window.location.href = "/doctor/dashboard";
         } else if (res?.data?.data?.role === "Admin") {
           window.location.href = "/admin";
+        } else if (res?.data?.data?.role === "receptionist") {
+          window.location.href = "/";
         } else {
-          window.location.href = "/reminder";
+          window.location.href = "/";
         }
       } else {
         alert(res?.message || "Login failed");

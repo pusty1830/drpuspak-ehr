@@ -13,6 +13,8 @@ import PrescriptionPage from "./pages/doctor/PrescriptionPage";
 import Dashboard from "./pages/Admin";
 import DoctorTable from "./pages/Admin/Doctor";
 import ReminderTable from "./pages/Admin/Reminder";
+import ContactMessagesTable from "./pages/Contact";
+import ReceptionistTable from "./pages/Admin/Receptionist";
 
 const App = () => {
   return (
@@ -58,6 +60,24 @@ const App = () => {
               <PrivateRoute
                 component={ReminderTable}
                 allowedRoles={["Admin", "Doctor"]}
+              />
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PrivateRoute
+                component={ContactMessagesTable}
+                allowedRoles={["Admin", "Receptionist"]}
+              />
+            }
+          />
+          <Route
+            path="/admin/receptionist"
+            element={
+              <PrivateRoute
+                component={ReceptionistTable}
+                allowedRoles={["Admin"]}
               />
             }
           />

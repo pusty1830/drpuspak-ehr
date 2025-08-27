@@ -81,17 +81,25 @@ const DoctorDashboard = () => {
     setIsLoading(true);
     try {
       // fetch bookings
-      const today = new Date();
-      const todayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate()
-        )
+      const nowISTString = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+      });
+      console.log("Current IST String:", nowISTString);
+
+      // Get IST date object
+      const nowIST = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
       );
 
+      // Format as YYYY-MM-DD (for SQL style match)
+      const yyyy = nowIST.getFullYear();
+      const mm = String(nowIST.getMonth() + 1).padStart(2, "0");
+      const dd = String(nowIST.getDate()).padStart(2, "0");
+      const bookingDate = `${yyyy}-${mm}-${dd}`; // "2025-08-28"
+
+      // Payload
       const bookingPayload = {
-        data: { filter: "", doctorId: getUserId(), bookingDate: todayUTC },
+        data: { filter: "", doctorId: getUserId(), bookingDate },
         page: 0,
         pageSize: 50,
         order: [["createdAt", "ASC"]],

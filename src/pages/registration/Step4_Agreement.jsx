@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "../../context/RegistrationContext";
-import { createpatientDetails, createUser } from "../../services/services";
+import {
+  createBooking,
+  createpatientDetails,
+  createUser,
+} from "../../services/services";
 import { toast } from "react-toastify";
+import { getUserRole, isLoggedIn } from "../../services/axiosClient";
+const allowedRoles = ["Receptionist", "Admin", "Doctor"];
 
 const Step4_Agreement = () => {
   const navigate = useNavigate();
@@ -41,10 +47,35 @@ const Step4_Agreement = () => {
 
           createpatientDetails(BookpayLoad)
             .then((res) => {
-              toast.success(
-                res?.data?.msg || "Patient details saved successfully"
-              );
-              navigate("/payment");
+              if (isLoggedIn() && allowedRoles.includes(getUserRole())) {
+                const bookingPayload = {
+                  userId: userId,
+                  doctorId: formData?.step3?.doctor?.id,
+                  bookingDate: formData?.step2?.bookingDate,
+                };
+
+                createBooking(bookingPayload)
+                  .then((res) => {
+                    toast.success(
+                      res?.data?.msg || "Booking created successfully!"
+                    );
+                    navigate("/success", {
+                      state: { bookingId: res?.data?.data?.id },
+                    });
+                  })
+                  .catch((err) => {
+                    const errorMsg =
+                      err?.response?.data?.msg || "Failed to create booking";
+                    toast.error(errorMsg);
+                    console.error(err);
+                  });
+              } else {
+                // Normal flow → go to payment
+                toast.success(
+                  res?.data?.msg || "Patient details saved successfully"
+                );
+                navigate("/payment");
+              }
             })
             .catch((err) => {
               const errorMsg =
@@ -60,8 +91,28 @@ const Step4_Agreement = () => {
           console.log(err);
         });
     } else {
-      // Existing user → skip APIs, go to payment directly
-      navigate("/payment");
+      if (isLoggedIn() && allowedRoles.includes(getUserRole())) {
+        const bookingPayload = {
+          userId: formData.step3.userId,
+          doctorId: formData.step3.doctor.id,
+          bookingDate: formData.step3.bookingDate,
+        };
+
+        createBooking(bookingPayload)
+          .then((res) => {
+            toast.success(res?.data?.msg || "Booking created successfully!");
+            navigate("/success", { state: { bookingId: res?.data?.data?.id } });
+          })
+          .catch((err) => {
+            const errorMsg =
+              err?.response?.data?.msg || "Failed to create booking";
+            toast.error(errorMsg);
+            console.error(err);
+          });
+      } else {
+        // Normal flow → payment
+        navigate("/payment");
+      }
     }
   };
 

@@ -32,9 +32,15 @@ const Navbar = () => {
       { label: "Home", path: "/" },
       { label: "Admin Dashboard", path: "/admin" },
       { label: "Doctors", path: "/admin/doctor" },
+      { label: "Receptionist", path: "/admin/receptionist" },
       { label: "Download Reminder Data", path: "/download/data/" },
+      { label: "Contact Messages", path: "/contact" },
     ],
     user: [{ label: "Home", path: "/" }],
+    receptionist: [
+      { label: "Home", path: "/" },
+      { label: "Contact Messages", path: "/contact" },
+    ],
   };
 
   const userRole = getUserRole()?.toLowerCase(); // "doctor" | "admin" | "user"

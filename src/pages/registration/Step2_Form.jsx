@@ -137,7 +137,6 @@ const Step2_Form = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-           
 
             {/* Full Name with voice */}
             <div className="flex flex-col relative">
@@ -192,7 +191,7 @@ const Step2_Form = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-             {/* Booking Date */}
+            {/* Booking Date */}
             <div className="flex flex-col">
               <label className="font-semibold text-gray-700">
                 Booking Date <span className="text-red-500">*</span>
@@ -271,40 +270,21 @@ const Step2_Form = () => {
               />
             </div>
 
-            {/* Blood Group */}
-            <div className="flex flex-col">
-              <label className="font-semibold text-gray-700">Blood Group</label>
-              <Field
-                as="select"
-                name="bloodGroup"
-                className="mt-1 p-2 border border-gray-400 outline-none rounded shadow-sm w-full"
-              >
-                <option value="">Select Blood Group</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-              </Field>
-            </div>
-
             {/* Address */}
             <div className="flex flex-col relative">
-              <label className="font-semibold text-gray-700">Address</label>
+              <label className="font-semibold text-gray-700">
+                Address<span className="text-red-500">*</span>
+              </label>
               <Field
                 name="address"
                 type="text"
                 className="mt-1 p-2 border rounded shadow-sm outline-none border-gray-400"
               />
             </div>
-
             {/* Phone Number */}
             <div className="flex flex-col relative">
               <label className="font-semibold text-gray-700">
-                Phone Number
+                Phone Number<span className="text-red-500">*</span>
               </label>
               <Field
                 name="phone"
@@ -327,7 +307,6 @@ const Step2_Form = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-
             {/* Email */}
             <div className="flex flex-col relative">
               <label className="font-semibold text-gray-700">Email</label>
@@ -351,6 +330,26 @@ const Step2_Form = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
+            </div>
+            {/* Blood Group */}
+
+            <div className="flex flex-col">
+              <label className="font-semibold text-gray-700">Blood Group</label>
+              <Field
+                as="select"
+                name="bloodGroup"
+                className="mt-1 p-2 border border-gray-400 outline-none rounded shadow-sm w-full"
+              >
+                <option value="">Select Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </Field>
             </div>
 
             {/* Navigation Buttons */}
