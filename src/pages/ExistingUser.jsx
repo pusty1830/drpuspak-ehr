@@ -109,7 +109,11 @@ const ExistingUser = () => {
       return;
     }
     navigate("/doctors", {
-      state: { userId: selectedUser.id, userName: selectedUser.name, bookingDate },
+      state: {
+        userId: selectedUser.id,
+        userName: selectedUser.name,
+        bookingDate,
+      },
     });
   };
 
@@ -121,20 +125,24 @@ const ExistingUser = () => {
             <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center text-gray-800">
               Existing User Login
             </h2>
-            <Formik initialValues={{ mobile: "" }} validationSchema={validationSchema} onSubmit={handleSubmit}>
+            <Formik
+              initialValues={{ mobile: "" }}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
               {({ setFieldValue, values }) => (
                 <Form className="space-y-5">
                   <div>
                     <label className="block mb-2 font-medium text-gray-700 text-sm sm:text-base">
                       Registered Mobile Number
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Field
                         type="tel"
                         name="mobile"
                         placeholder="Enter 10-digit number"
                         maxLength="10"
-                        className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring focus:ring-blue-300 text-sm sm:text-base"
+                        className="flex-grow min-w-[150px] border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring focus:ring-blue-300 text-sm sm:text-base"
                         onChange={(e) => {
                           setFieldValue("mobile", e.target.value);
                           if (e.target.value.length === 10) {
@@ -145,14 +153,21 @@ const ExistingUser = () => {
                       <button
                         type="button"
                         onClick={() => handleVoiceInput(setFieldValue)}
-                        className="bg-blue-500 text-white px-3 sm:px-4 rounded-lg hover:bg-blue-600 text-lg"
+                        className="bg-blue-500 text-white px-3 sm:px-4 rounded-lg hover:bg-blue-600 text-lg flex-shrink-0"
+                        aria-label="Voice input button"
                       >
                         🎤
                       </button>
                     </div>
-                    <ErrorMessage name="mobile" component="div" className="text-red-500 text-sm mt-1" />
+                    <ErrorMessage
+                      name="mobile"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
                     {userNotFound && values.mobile.length === 10 && (
-                      <p className="text-red-500 text-sm mt-2">User not found. You can register as a new user.</p>
+                      <p className="text-red-500 text-sm mt-2">
+                        User not found. You can register as a new user.
+                      </p>
                     )}
                   </div>
 
@@ -184,13 +199,27 @@ const ExistingUser = () => {
                         : "bg-gray-50 hover:bg-blue-50"
                     }`}
                   >
-                    <p><strong>Name:</strong> {user.name}</p>
-                    <p><strong>Mobile:</strong> {user.mobileNumber}</p>
-                    <p><strong>Parent Name:</strong> {user.parentName || "-"}</p>
-                    <p><strong>Age:</strong> {user.age || "-"}</p>
-                    <p><strong>Gender:</strong> {user.gender || "-"}</p>
-                    <p><strong>Blood Group:</strong> {user.bloodGroup || "-"}</p>
-                    <p><strong>Address:</strong> {user.address || "-"}</p>
+                    <p>
+                      <strong>Name:</strong> {user.name}
+                    </p>
+                    <p>
+                      <strong>Mobile:</strong> {user.mobileNumber}
+                    </p>
+                    <p>
+                      <strong>Parent Name:</strong> {user.parentName || "-"}
+                    </p>
+                    <p>
+                      <strong>Age:</strong> {user.age || "-"}
+                    </p>
+                    <p>
+                      <strong>Gender:</strong> {user.gender || "-"}
+                    </p>
+                    <p>
+                      <strong>Blood Group:</strong> {user.bloodGroup || "-"}
+                    </p>
+                    <p>
+                      <strong>Address:</strong> {user.address || "-"}
+                    </p>
                   </div>
                 ))
               ) : (

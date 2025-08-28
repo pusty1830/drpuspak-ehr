@@ -35,10 +35,13 @@ const Step2_Form = () => {
   const [recordingField, setRecordingField] = useState(null);
 
   // Calculate age helper
-  const calculateAge = (dob) => {
+  const calculateAgeIST = (dob) => {
     if (!dob) return "";
-    const birthDate = new Date(dob);
+
+    // Convert to Date object in IST
+    const birthDate = new Date(dob + "T00:00:00+05:30"); // IST timezone
     const today = new Date();
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     if (
@@ -47,14 +50,14 @@ const Step2_Form = () => {
     ) {
       age--;
     }
+
     return age >= 0 ? age.toString() : "";
   };
 
   // Web Speech API voice input for a Formik field
-  const startRecording = (field, setFieldValue) => {
+  const startRecording = (field, setFieldValue, type = "text") => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-
     if (!SpeechRecognition) {
       alert("Your browser does not support voice input.");
       return;
@@ -68,17 +71,58 @@ const Step2_Form = () => {
     setRecordingField(field);
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0].transcript;
-      setFieldValue(field, transcript);
+      let transcript = event.results[0][0].transcript;
+      console.log("Transcript:", transcript);
+
+      // If it's a date field, convert to YYYY-MM-DD
+      if (type === "date") {
+        const parsedDate = parseDateFromSpeech(transcript);
+        if (parsedDate) {
+          setFieldValue(field, parsedDate);
+          if (field === "dob") {
+            setFieldValue("age", calculateAgeIST(parsedDate));
+          }
+        } else {
+          alert("Could not recognize a valid date. Please try again.");
+        }
+      } else {
+        setFieldValue(field, transcript);
+      }
     };
 
-    recognition.onend = () => setRecordingField(null);
     recognition.onerror = (event) => {
       alert("Speech recognition error: " + event.error);
+      setRecordingField(null);
+      console.error("Speech recognition error", event.error);
+    };
+
+    recognition.onend = () => {
       setRecordingField(null);
     };
 
     recognition.start();
+  };
+
+  const parseDateFromSpeech = (speech) => {
+    try {
+      const parsed = new Date(speech);
+      if (!isNaN(parsed)) {
+        // Get components in IST
+        const day = parsed.getDate();
+        const month = parsed.getMonth() + 1; // months 0-11
+        const year = parsed.getFullYear();
+
+        // Format as YYYY-MM-DD
+        const formattedDate = `${year}-${String(month).padStart(
+          2,
+          "0"
+        )}-${String(day).padStart(2, "0")}`;
+        return formattedDate;
+      }
+    } catch (err) {
+      console.error("Date parsing error", err);
+    }
+    return null;
   };
 
   const initialValues = formData.step2 || {
@@ -192,16 +236,33 @@ const Step2_Form = () => {
               />
             </div>
             {/* Booking Date */}
-            <div className="flex flex-col">
+            {/* Booking Date with voice input */}
+            <div className="flex flex-col relative">
               <label className="font-semibold text-gray-700">
                 Booking Date <span className="text-red-500">*</span>
               </label>
-              <Field
-                name="bookingDate"
-                type="date"
-                min={new Date().toISOString().split("T")[0]} // ✅ disable past dates
-                className="mt-1 p-2 border rounded shadow-sm border-gray-400 outline-none"
-              />
+              <div className="relative">
+                <Field
+                  name="bookingDate"
+                  type="date"
+                  min={new Date().toISOString().split("T")[0]} // disable past dates
+                  className="mt-1 p-2 pr-10 border rounded shadow-sm border-gray-400 outline-none w-full"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    startRecording("bookingDate", setFieldValue, "date")
+                  }
+                  className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-7 h-7 rounded-full ${
+                    recordingField === "bookingDate"
+                      ? "bg-red-500"
+                      : "bg-blue-500"
+                  } flex items-center justify-center text-white`}
+                  title="Voice input"
+                >
+                  <FaMicrophone size={12} />
+                </button>
+              </div>
               <ErrorMessage
                 name="bookingDate"
                 component="div"
@@ -238,20 +299,35 @@ const Step2_Form = () => {
             </div>
 
             {/* Date of Birth */}
-            <div className="flex flex-col">
+            {/* Date of Birth */}
+            <div className="flex flex-col relative">
               <label className="font-semibold text-gray-700">
                 Date of Birth <span className="text-red-500">*</span>
               </label>
-              <Field
-                name="dob"
-                type="date"
-                className="mt-1 p-2 border rounded shadow-sm border-gray-400 outline-none"
-                onChange={(e) => {
-                  const dob = e.target.value;
-                  setFieldValue("dob", dob);
-                  setFieldValue("age", calculateAge(dob));
-                }}
-              />
+              <div className="relative">
+                <Field
+                  name="dob"
+                  type="date"
+                  className="mt-1 p-2 pr-10 border rounded shadow-sm border-gray-400 outline-none w-full"
+                  onChange={(e) => {
+                    const dob = e.target.value;
+                    setFieldValue("dob", dob);
+                    setFieldValue("age", calculateAgeIST(dob));
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    startRecording("dob", setFieldValue, "date");
+                  }}
+                  className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-7 h-7 rounded-full ${
+                    recordingField === "dob" ? "bg-red-500" : "bg-blue-500"
+                  } flex items-center justify-center text-white`}
+                  title="Voice input"
+                >
+                  <FaMicrophone size={12} />
+                </button>
+              </div>
               <ErrorMessage
                 name="dob"
                 component="div"
@@ -279,6 +355,21 @@ const Step2_Form = () => {
                 name="address"
                 type="text"
                 className="mt-1 p-2 border rounded shadow-sm outline-none border-gray-400"
+              />
+              <button
+                type="button"
+                onClick={() => startRecording("address", setFieldValue)}
+                className={`absolute right-2 bottom-2 w-7 h-7 rounded-full ${
+                  recordingField === "address" ? "bg-red-500" : "bg-blue-500"
+                } flex items-center justify-center text-white`}
+                title="Voice input"
+              >
+                <FaMicrophone size={12} />
+              </button>
+              <ErrorMessage
+                name="address"
+                component="div"
+                className="text-red-500 text-sm mt-1"
               />
             </div>
             {/* Phone Number */}
