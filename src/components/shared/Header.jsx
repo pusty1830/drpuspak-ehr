@@ -163,9 +163,9 @@ const Navbar = () => {
           <li className="mt-5">
             <Link
               className="bg-green-600 hover:bg-green-700 text-white w-full block text-center py-2 rounded-full"
-              to="/appointment"
+              to="/login"
             >
-              BOOK AN APPOINTMENT
+              Login
             </Link>
           </li>
         </ul>
