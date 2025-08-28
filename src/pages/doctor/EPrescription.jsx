@@ -229,8 +229,8 @@ const EPrescription = ({ patient, onClose, onSave }) => {
       <div className="bg-white rounded-xl w-full md:w-3/4 max-h-[90vh] overflow-auto shadow-lg p-6">
         <div className="flex justify-between items-start mb-6 pb-4 border-b">
           <div>
-            <h3 className="text-2xl font-bold text-blue-600">E-Prescription</h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <h3 className="md:text-2xl font-bold text-blue-600">E-Prescription</h3>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">
               Patient ID: {data.patientId} · {data.name}
             </p>
           </div>
@@ -238,9 +238,9 @@ const EPrescription = ({ patient, onClose, onSave }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center md:gap-2 gap-1 bg-green-600 hover:bg-green-700 text-white md:px-4 md:py-2 px-2 py-1 rounded-lg transition-colors text-xs"
             >
-              <FaSave /> Save & Print
+              <FaSave className="text-lg md:text-xl"/> Save & Print
             </button>
             <button
               onClick={onClose}
@@ -432,7 +432,7 @@ const EPrescription = ({ patient, onClose, onSave }) => {
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            className="flex items-center md:gap-2 gap-1 px-2 py-1 md:px-6 md:py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors "
           >
             <FaFilePdf /> Save & Generate PDF
           </button>

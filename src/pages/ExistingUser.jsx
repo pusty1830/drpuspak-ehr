@@ -153,7 +153,7 @@ const ExistingUser = () => {
                       <button
                         type="button"
                         onClick={() => handleVoiceInput(setFieldValue)}
-                        className="bg-blue-500 text-white px-3 sm:px-4 rounded-lg hover:bg-blue-600 text-lg flex-shrink-0"
+                        className="bg-blue-500 text-white px-2 sm:px-3 rounded-lg hover:bg-blue-600 text-md md:text-lg flex-shrink-0"
                         aria-label="Voice input button"
                       >
                         🎤
@@ -173,7 +173,7 @@ const ExistingUser = () => {
 
                   <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-700 font-medium text-sm sm:text-base"
+                    className="w-full bg-blue-500 text-white py-2 md:py-3 rounded-lg hover:bg-blue-700 font-medium text-sm sm:text-base"
                   >
                     Next
                   </button>
