@@ -150,7 +150,7 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading }) => {
           <p className="text-gray-400 text-sm mt-1">All caught up!</p>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
           {enrichedAppointments.map((appointment, index) => (
             <motion.li
               key={appointment.id}

@@ -247,7 +247,7 @@ const DoctorDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-1 mb-6">
           <div className="flex gap-1">
             <button
-              className={`flex items-center gap-1 md:gap-2 md:px-4 md:py-3 px-2 py-2 text-xs md:text-md rounded-lg transition-colors duration-200 flex-1 justify-center ${
+              className={`flex items-center gap-1 md:gap-2 md:px-4 md:py-3 px-2 py-2 text-xs md:text-md lg:text-lg rounded-lg transition-colors duration-200 flex-1 justify-center ${
                 view === "today"
                   ? "bg-blue-600 text-white shadow-md"
                   : "text-gray-600 hover:bg-gray-100"
@@ -258,7 +258,7 @@ const DoctorDashboard = () => {
               <span>Today Appointments</span>
             </button>
             <button
-              className={`flex items-center gap-1 md:gap-2 md:px-4 md:py-3 px-2 py-2 text-xs md:text-mdrounded-lg transition-colors duration-200 flex-1 justify-center ${
+              className={`flex items-center gap-1 md:gap-2 md:px-4 md:py-3 px-2 py-2 text-xs md:text-md lg:text-lg rounded-lg transition-colors duration-200 flex-1 justify-center ${
                 view === "recent"
                   ? "bg-blue-600 text-white shadow-md"
                   : "text-gray-600 hover:bg-gray-100"
