@@ -129,10 +129,10 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-5 border-b border-gray-100 bg-blue-50">
-        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-          <FiClock className="mr-2 text-blue-600" />
+        <h3 className="text-md md:text-xl font-semibold text-gray-800 flex items-center">
+          <FiClock className="mr-2 text-blue-600 " />
           Today's Appointments
-          <span className="ml-auto text-sm font-normal bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+          <span className="ml-auto text-sm font-normal bg-blue-100 text-blue-800 md:px-3 py-1 px-2 rounded-full">
             {isLoading ? "--" : enrichedAppointments.length}{" "}
             {enrichedAppointments.length === 1 ? "appointment" : "appointments"}
           </span>
@@ -150,7 +150,7 @@ const TodayAppointments = ({ appointments = [], onViewPatient, isLoading }) => {
           <p className="text-gray-400 text-sm mt-1">All caught up!</p>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
           {enrichedAppointments.map((appointment, index) => (
             <motion.li
               key={appointment.id}

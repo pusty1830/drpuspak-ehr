@@ -31,31 +31,46 @@ const Step1_UserType = () => {
         Are you a new or existing patient?
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div
-          onClick={() => handleSelect("new")}
-          className={`cursor-pointer border-2 rounded-lg p-6 text-center transition ${
-            selected === "new"
-              ? "border-blue-600 bg-blue-50"
-              : "border-blue-300 hover:bg-blue-50"
-          }`}
-        >
-          <h3 className="text-xl font-semibold text-blue-700 mb-2">🆕 New Patient</h3>
-          <p className="text-gray-600 ">Register as a new patient and book your consultation.</p>
-        </div>
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  {/* New Patient */}
+  <div
+    onClick={() => handleSelect("new")}
+    className={`cursor-pointer border-2 rounded-lg p-6 text-center transition
+      ${
+        selected === "new"
+          ? "border-blue-600 bg-blue-50 text-blue-700"
+          : "border-gray-400 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+      }`}
+  >
+    <h3
+      className={`text-xl font-semibold mb-2 transition
+        ${selected === "new" ? "text-blue-700" : "text-gray-700 group-hover:text-blue-700"}`}
+    >
+      🆕 New Patient
+    </h3>
+    <p className="text-gray-600">Register as a new patient and book your consultation.</p>
+  </div>
 
-        <div
-          onClick={() => handleSelect("existing")}
-          className={`cursor-pointer border-2 rounded-lg p-6 text-center transition ${
-            selected === "existing"
-              ? "border-gray-600 bg-gray-100"
-              : "border-gray-400 hover:bg-gray-50"
-          }`}
-        >
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">👤 Existing Patient</h3>
-          <p className="text-gray-600">Already registered? Continue with your profile.</p>
-        </div>
-      </div>
+  {/* Existing Patient */}
+  <div
+    onClick={() => handleSelect("existing")}
+    className={`cursor-pointer border-2 rounded-lg p-6 text-center transition
+      ${
+        selected === "existing"
+          ? "border-blue-600 bg-blue-50 text-blue-700"
+          : "border-gray-400 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+      }`}
+  >
+    <h3
+      className={`text-xl font-semibold mb-2 transition
+        ${selected === "existing" ? "text-blue-700" : "text-gray-700 group-hover:text-blue-700"}`}
+    >
+      👤 Existing Patient
+    </h3>
+    <p className="text-gray-600">Already registered? Continue with your profile.</p>
+  </div>
+</div>
+
 
       {/* Navigation Buttons */}
       <div className="flex justify-between">

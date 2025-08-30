@@ -73,7 +73,7 @@ const RecentPatients = ({ patients = [], onOpenPatient, isLoading }) => {
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
           {enrichedPatients.map((patient, index) => (
             <motion.li
               key={patient.patientId || index}
